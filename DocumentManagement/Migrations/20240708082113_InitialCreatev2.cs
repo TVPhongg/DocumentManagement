@@ -5,7 +5,7 @@
 namespace DocumentManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreatev3 : Migration
+    public partial class InitialCreatev2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

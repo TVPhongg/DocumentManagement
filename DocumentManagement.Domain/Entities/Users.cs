@@ -42,5 +42,7 @@ namespace DocumentManagement.Domain.Entities
         public int Role_id { get; set; }
 
         public virtual Roles roles { get; set; }
+        public virtual Folders? Folders { get; set; }
+        public virtual Files? Files { get; set; }
     }
 }
