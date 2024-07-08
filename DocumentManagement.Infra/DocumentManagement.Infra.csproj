@@ -7,14 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Infra.Identity\Contexts\" />
-    <Folder Include="Infra.Identity\Models\" />
-    <Folder Include="Infra.Identity\File Storage\" />
-    <Folder Include="Infra.Identity\Services\" />
-    <Folder Include="Infra.Identity\Seeds\" />
-    <Folder Include="Infra.Persistence\Contexts\" />
-    <Folder Include="Infra.Persistence\Caching\" />
-    <Folder Include="Infra.Persistence\Repositories\" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DocumentManagement.Domain\DocumentManagement.Domain.csproj" />
   </ItemGroup>
 
 </Project>

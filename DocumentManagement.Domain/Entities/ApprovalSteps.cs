@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+ 
 
 namespace DocumentManagement.Domain.Entities
 {
@@ -20,7 +21,7 @@ namespace DocumentManagement.Domain.Entities
 
         public Request_Document request {  get; set; }
 
-        //public User Approver { get; set; }
+        public Users Approver { get; set; }
 
         public ApprovalLevels approvalLevel { get; set; }
     }
