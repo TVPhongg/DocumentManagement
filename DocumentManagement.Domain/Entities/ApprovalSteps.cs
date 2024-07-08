@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
+    [Table("ApprovalSteps")]
     public class ApprovalSteps
     {
         [Key]
@@ -23,6 +25,6 @@ namespace DocumentManagement.Domain.Entities
 
         public Users Approver { get; set; }
 
-        public ApprovalLevels approvalLevel { get; set; }
+        public ApprovalLevels ApprovalLevel { get; set; }
     }
 }

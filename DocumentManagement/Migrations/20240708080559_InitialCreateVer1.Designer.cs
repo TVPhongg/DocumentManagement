@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocumentManagement.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240708071017_InitialCreatev6")]
-    partial class InitialCreatev6
+    [Migration("20240708080559_InitialCreateVer1")]
+    partial class InitialCreateVer1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,7 +63,7 @@ namespace DocumentManagement.Migrations
                     b.ToTable("Files");
                 });
 
-            modelBuilder.Entity("DocumentManagement.Domain.Entities.Foleders", b =>
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -87,7 +87,42 @@ namespace DocumentManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Foleders");
+                    b.ToTable("Folders");
+                });
+
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Logs", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Activity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ApprovalSteps_id")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("File_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Foleders_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Request_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("User_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Roles", b =>
@@ -164,7 +199,7 @@ namespace DocumentManagement.Migrations
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Files", b =>
                 {
-                    b.HasOne("DocumentManagement.Domain.Entities.Foleders", "Foleders")
+                    b.HasOne("DocumentManagement.Domain.Entities.Folders", "Foleders")
                         .WithMany("File")
                         .HasForeignKey("FoledersId");
 
@@ -182,7 +217,7 @@ namespace DocumentManagement.Migrations
                     b.Navigation("roles");
                 });
 
-            modelBuilder.Entity("DocumentManagement.Domain.Entities.Foleders", b =>
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
                 {
                     b.Navigation("File");
                 });
