@@ -11,7 +11,7 @@ namespace DocumentManagement.Domain.Entities
     internal class Logs
     {
         [Table("Foleders")]
-        internal class Foleders
+        public class Foleders
         {
             [Key]
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

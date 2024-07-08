@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DocumentManagement.Domain.Entities
 {
     [Table("Foleders")]
-    internal class Foleders
+    public class Foleders
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
