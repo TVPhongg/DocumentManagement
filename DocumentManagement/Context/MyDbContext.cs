@@ -13,7 +13,8 @@ namespace DocumentManagement.Infra.Context
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
         public DbSet<Files> File { get; set; }
-        public DbSet<Foleders> Foleder { get; set; }
-        public DbSet<Users> User { get; set; }
+        public DbSet<Folders> Folders { get; set; }
+        public DbSet<Users> User { get; set; } 
+        public DbSet<Logs> Log { get; set; }
     }
 }

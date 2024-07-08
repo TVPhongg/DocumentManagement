@@ -23,6 +23,6 @@ namespace DocumentManagement.Domain.Entities
         public int User_id { get; set; }
         public float File_size { get; set; }
 
-        public virtual Foleders? Foleders { get; set; }
+        public virtual Folders? Foleders { get; set; }
     }
 }

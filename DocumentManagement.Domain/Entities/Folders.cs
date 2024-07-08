@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    [Table("Foleders")]
-    public class Foleders
+    [Table("Folders")]
+    public class Folders
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
