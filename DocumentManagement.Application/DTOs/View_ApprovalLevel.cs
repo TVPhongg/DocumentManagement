@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Application.DTOs
 {
-    internal class View_ApprovalLevel
+    public class View_ApprovalLevel
     {
         public int Id { get; set; }
         public int Level { get; set; }
