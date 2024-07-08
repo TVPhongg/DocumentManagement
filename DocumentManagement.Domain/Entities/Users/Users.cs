@@ -38,7 +38,7 @@ namespace DocumentManagement.Domain.Entities.Users
         public string Password_hash { get; set; }
 
         [Required]
-        [ForeignKey("Role")]
+        [ForeignKey("Roles")]
         public int Role_id { get; set; }
 
         public virtual  Roles roles { get; set; }
