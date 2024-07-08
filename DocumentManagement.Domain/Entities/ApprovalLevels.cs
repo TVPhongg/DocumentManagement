@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    internal class ApprovalLevels
+    public class ApprovalLevels
     {
         [Key]
         public int Id { get; set; }

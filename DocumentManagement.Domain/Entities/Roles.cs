@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    internal class Roles
+    public class Roles
     {
         [Key]
         public int Role_id { get; set; }

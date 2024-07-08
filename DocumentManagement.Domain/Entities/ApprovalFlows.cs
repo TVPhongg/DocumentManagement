@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    internal class ApprovalFlows
+    public class ApprovalFlows
     {
         [Key]
         public int Id { get; set; }

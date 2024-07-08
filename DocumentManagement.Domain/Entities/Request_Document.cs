@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    internal class Request_Document
+    public class Request_Document
     {
         [Key]
         public int Id { get; set; }

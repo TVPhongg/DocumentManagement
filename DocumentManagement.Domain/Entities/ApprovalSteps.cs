@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    internal class ApprovalSteps
+    public class ApprovalSteps
     {
         [Key]
         public int Id { get; set; }
