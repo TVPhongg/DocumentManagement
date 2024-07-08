@@ -4,6 +4,7 @@ using DocumentManagement.Infra.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocumentManagement.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240708075053_InitialCreatev8")]
+    partial class InitialCreatev8
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,6 +125,78 @@ namespace DocumentManagement.Migrations
                     b.ToTable("Logs");
                 });
 
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Roles", b =>
+                {
+                    b.Property<int>("Role_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Role_id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Roles_name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Role_id");
+
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
+                {
+                    b.Property<int>("Users_id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Users_id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("First_name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Last_name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Password_hash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Role_id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("rolesRole_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("Users_id");
+
+                    b.HasIndex("rolesRole_id");
+
+                    b.ToTable("User");
+                });
+
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Files", b =>
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.Folders", "Foleders")
@@ -131,9 +206,6 @@ namespace DocumentManagement.Migrations
                     b.Navigation("Foleders");
                 });
 
-<<<<<<< Updated upstream
-            modelBuilder.Entity("DocumentManagement.Domain.Entities.Foleders", b =>
-=======
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.Roles", "roles")
@@ -146,9 +218,13 @@ namespace DocumentManagement.Migrations
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
->>>>>>> Stashed changes
                 {
                     b.Navigation("File");
+                });
+
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Roles", b =>
+                {
+                    b.Navigation("users");
                 });
 #pragma warning restore 612, 618
         }
