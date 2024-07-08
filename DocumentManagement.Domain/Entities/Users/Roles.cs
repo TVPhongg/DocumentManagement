@@ -18,6 +18,6 @@ namespace DocumentManagement.Domain.Entities.Users
         [StringLength(50)]
         public string Description { get; set; }
 
-        public virtual Users users { get; set; }
+        public virtual ICollection<Users> users { get; set; }
     }
 }

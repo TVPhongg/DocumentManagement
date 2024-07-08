@@ -41,6 +41,6 @@ namespace DocumentManagement.Domain.Entities.Users
         [ForeignKey("Role")]
         public int Role_id { get; set; }
 
-        public  Roles roles { get; set; }
+        public virtual  Roles roles { get; set; }
     }
 }
