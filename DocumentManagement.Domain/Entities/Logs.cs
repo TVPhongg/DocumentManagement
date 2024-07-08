@@ -8,21 +8,24 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    internal class Logs
+    [Table("Logs")]
+    public class Logs
     {
-        [Table("Foleders")]
-        public class Foleders
-        {
-            [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-            public int Id { get; set; }
-            public string Foleders_name { get; set; }
-            public DateTime Created_date { get; set; }
-            [ForeignKey("User_id")]
-            public int User_id { get; set; }
-            public string Folders_lever { get; set; }
-            public virtual ICollection<Files>? File { get; set; }
-            //public virtual ICollection<Users>? Users { get; set; }
-        }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+        [ForeignKey("Foleders_id")]
+        public int Foleders_id { get; set; }
+        [ForeignKey("File_id")]
+        public int File_id { get; set; }
+        public string Activity { get; set; }
+        public DateTime Created_date { get; set; }
+        [ForeignKey("User_id")]
+        public int User_id { get; set; }
+        [ForeignKey("Request_id")]
+        public int Request_id { get; set; }
+        [ForeignKey("ApprovalSteps_id")]
+        public int ApprovalSteps_id { get; set; }
+
     }
 }
