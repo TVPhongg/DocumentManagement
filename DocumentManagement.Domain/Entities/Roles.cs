@@ -11,9 +11,11 @@ namespace DocumentManagement.Domain.Entities
     {
         [Key]
         public int Role_id { get; set; }
+
         [Required]
         [StringLength(50)]
         public string Roles_name { get; set; }
+
         [Required]
         [StringLength(50)]
         public string Description { get; set; }
