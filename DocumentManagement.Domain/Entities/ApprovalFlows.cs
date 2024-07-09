@@ -16,5 +16,6 @@ namespace DocumentManagement.Domain.Entities
         [Required]
         public string Name { get; set; }
         public ICollection<ApprovalLevels> ApprovalLevels { get; set; }
+
     }
 }

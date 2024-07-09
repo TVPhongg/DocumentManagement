@@ -18,6 +18,7 @@ namespace DocumentManagement.Domain.Entities
         public string Title { get; set; }
         public DateTime Created_date { get; set; }
         public string Status {  get; set; }
-        public ICollection<ApprovalSteps> ApprovalStep { get; set; }
+        public ICollection<ApprovalSteps> ApprovalStep { get; set;}
+
     }
 }

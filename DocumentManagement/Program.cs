@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using DocumentManagement.Infra.Context;
+using DocumentManagement.Domain.Context;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

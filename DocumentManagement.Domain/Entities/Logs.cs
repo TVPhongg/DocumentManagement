@@ -18,7 +18,9 @@ namespace DocumentManagement.Domain.Entities
         public int Foleders_id { get; set; }
         [ForeignKey("File_id")]
         public int File_id { get; set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public string Activity { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public DateTime Created_date { get; set; }
         [ForeignKey("User_id")]
         public int User_id { get; set; }
