@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    internal class Users
+    public class Users
     {
 
         [Key]
