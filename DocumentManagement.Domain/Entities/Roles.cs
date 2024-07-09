@@ -16,11 +16,11 @@ namespace DocumentManagement.Domain.Entities
         [StringLength(50)]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public string Roles_name { get; set; }
-<<<<<<< HEAD
 
-=======
+
+
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
->>>>>>> 409db1df52b3fb6aa6c3a4b7d0d8f4fe0a33dd71
+
         [Required]
         [StringLength(50)]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
