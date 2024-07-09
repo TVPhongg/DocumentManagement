@@ -15,6 +15,10 @@ namespace DocumentManagement.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Folders_name { get; set; }
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         public DateTime Created_date { get; set; }
         [ForeignKey("User_id")]
         public int User_id { get; set; }
