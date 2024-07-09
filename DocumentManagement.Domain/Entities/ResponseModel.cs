@@ -10,6 +10,7 @@ namespace DocumentManagement.Domain.Entities
     {
         public int statusCode { get; set; }
         public string message { get; set; }
-        public List<string> data { get; set; }
+
+        public string data { get; set; }
     }
 }
