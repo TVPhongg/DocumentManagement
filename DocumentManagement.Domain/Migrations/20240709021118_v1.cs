@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace DocumentManagement.Migrations
+namespace DocumentManagement.Domain.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreatev1 : Migration
+    public partial class v1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,19 +25,38 @@ namespace DocumentManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Foleders",
+                name: "Folders",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Foleders_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Folders_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     User_id = table.Column<int>(type: "int", nullable: false),
                     Folders_lever = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Foleders", x => x.Id);
+                    table.PrimaryKey("PK_Folders", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Logs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Foleders_id = table.Column<int>(type: "int", nullable: false),
+                    File_id = table.Column<int>(type: "int", nullable: false),
+                    Activity = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    User_id = table.Column<int>(type: "int", nullable: false),
+                    Request_id = table.Column<int>(type: "int", nullable: false),
+                    ApprovalSteps_id = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Logs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -96,21 +115,21 @@ namespace DocumentManagement.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Foleders_id = table.Column<int>(type: "int", nullable: false),
+                    Folders_id = table.Column<int>(type: "int", nullable: false),
                     File_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     File_path = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     User_id = table.Column<int>(type: "int", nullable: false),
                     File_size = table.Column<float>(type: "real", nullable: false),
-                    FoledersId = table.Column<int>(type: "int", nullable: true)
+                    FoldersId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Files", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Files_Foleders_FoledersId",
-                        column: x => x.FoledersId,
-                        principalTable: "Foleders",
+                        name: "FK_Files_Folders_FoldersId",
+                        column: x => x.FoldersId,
+                        principalTable: "Folders",
                         principalColumn: "Id");
                 });
 
@@ -127,11 +146,23 @@ namespace DocumentManagement.Migrations
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Password_hash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role_id = table.Column<int>(type: "int", nullable: false),
-                    rolesRole_id = table.Column<int>(type: "int", nullable: false)
+                    rolesRole_id = table.Column<int>(type: "int", nullable: false),
+                    FoldersId = table.Column<int>(type: "int", nullable: true),
+                    FilesId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.Users_id);
+                    table.ForeignKey(
+                        name: "FK_User_Files_FilesId",
+                        column: x => x.FilesId,
+                        principalTable: "Files",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_User_Folders_FoldersId",
+                        column: x => x.FoldersId,
+                        principalTable: "Folders",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_User_Roles_rolesRole_id",
                         column: x => x.rolesRole_id,
@@ -199,9 +230,19 @@ namespace DocumentManagement.Migrations
                 column: "requestId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Files_FoledersId",
+                name: "IX_Files_FoldersId",
                 table: "Files",
-                column: "FoledersId");
+                column: "FoldersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_FilesId",
+                table: "User",
+                column: "FilesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_FoldersId",
+                table: "User",
+                column: "FoldersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_User_rolesRole_id",
@@ -216,7 +257,7 @@ namespace DocumentManagement.Migrations
                 name: "ApprovalSteps");
 
             migrationBuilder.DropTable(
-                name: "Files");
+                name: "Logs");
 
             migrationBuilder.DropTable(
                 name: "ApprovalLevels");
@@ -228,13 +269,16 @@ namespace DocumentManagement.Migrations
                 name: "User");
 
             migrationBuilder.DropTable(
-                name: "Foleders");
-
-            migrationBuilder.DropTable(
                 name: "ApprovalFlows");
 
             migrationBuilder.DropTable(
+                name: "Files");
+
+            migrationBuilder.DropTable(
                 name: "Roles");
+
+            migrationBuilder.DropTable(
+                name: "Folders");
         }
     }
 }

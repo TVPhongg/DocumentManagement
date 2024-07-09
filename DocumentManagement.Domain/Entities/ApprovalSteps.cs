@@ -18,7 +18,9 @@ namespace DocumentManagement.Domain.Entities
         public int Request_id { get; set; }
         public int User_id { get; set; }
         public int ApprovalLevel_id { get; set; }
+
         public string Status { get; set; }
+
         public DateTime Action_date { get; set; }
 
         public Request_Document request {  get; set; }
@@ -26,5 +28,6 @@ namespace DocumentManagement.Domain.Entities
         public Users Approver { get; set; }
 
         public ApprovalLevels ApprovalLevel { get; set; }
+
     }
 }

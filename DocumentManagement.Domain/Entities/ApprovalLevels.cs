@@ -15,7 +15,10 @@ namespace DocumentManagement.Domain.Entities
         public int Id { get; set; }
         public int Level { get; set; }
         public int ApprovalFlowId { get; set; }
+
         public ApprovalFlows ApprovalFlows { get; set; }
+
         public ApprovalSteps  ApprovalStep { get; set; }
+
     }
 }
