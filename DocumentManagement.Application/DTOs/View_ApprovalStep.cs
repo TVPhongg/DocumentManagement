@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
- 
 
-namespace DocumentManagement.Domain.Entities
+namespace DocumentManagement.Application.DTOs
 {
-    [Table("ApprovalSteps")]
-    public class ApprovalSteps
+    public class View_ApprovalStep
     {
         [Key]
         public int Id { get; set; }
@@ -20,11 +16,5 @@ namespace DocumentManagement.Domain.Entities
         public int ApprovalLevel_id { get; set; }
         public string Status { get; set; }
         public DateTime Action_date { get; set; }
-
-        public Request_Document request {  get; set; }
-
-        public Users Approver { get; set; }
-
-        public ApprovalLevels ApprovalLevel { get; set; }
     }
 }
