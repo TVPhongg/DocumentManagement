@@ -8,9 +8,9 @@ namespace DocumentManagement.Application.Mappings
         public AplicationMapper()
         {
             CreateMap<ApprovalFlows, View_ApprovalFlow>().ReverseMap();
-       /*     CreateMap<category, viewCategory>().ReverseMap();
-            CreateMap<category, viewCate_DTO>().ReverseMap();
-            CreateMap<product, viewCate_DTO>().ReverseMap();*/
+            CreateMap<ApprovalLevels, View_ApprovalLevel>().ReverseMap();
+            CreateMap<ApprovalSteps, View_ApprovalStep>().ReverseMap();
+            CreateMap<Request_Document, View_ApprovalRequest>().ReverseMap();
         }
     }
 
