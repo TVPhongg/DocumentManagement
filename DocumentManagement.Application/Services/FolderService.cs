@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Application.Services
 {
-    public class FolderSevice : IFolderService
+    public class FolderService : IFolderService
     {
         public readonly MyDbContext _dbContext;
-        public FolderSevice(MyDbContext dbContext)
+        public FolderService(MyDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -92,7 +92,7 @@ namespace DocumentManagement.Application.Services
             throw new NotImplementedException();
         }
         /// <summary>
-        /// Tim kiếm folder theo tên folder và email cảu người đã tạo thư mục ấy
+        /// Tim kiếm folder theo tên folder và email của người đã tạo thư mục ấy
         /// </summary>
         /// <param name="searchTerm"></param>
         /// <returns></returns>
