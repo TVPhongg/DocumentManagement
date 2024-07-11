@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocumentManagement.Domain.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240709023159_vt1")]
+    [Migration("20240709101606_vt1")]
     partial class vt1
     {
         /// <inheritdoc />
@@ -168,7 +168,12 @@ namespace DocumentManagement.Domain.Migrations
                     b.Property<int>("User_id")
                         .HasColumnType("int");
 
+                    b.Property<int?>("Users_id")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Users_id");
 
                     b.ToTable("Folders");
                 });
@@ -252,7 +257,7 @@ namespace DocumentManagement.Domain.Migrations
 
                     b.HasKey("Role_id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
@@ -272,16 +277,10 @@ namespace DocumentManagement.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("FilesId")
-                        .HasColumnType("int");
-
                     b.Property<string>("First_name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<int?>("FoldersId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Gender")
                         .IsRequired()
@@ -300,18 +299,29 @@ namespace DocumentManagement.Domain.Migrations
                     b.Property<int>("Role_id")
                         .HasColumnType("int");
 
-                    b.Property<int>("rolesRole_id")
+                    b.Property<int>("Role_id1")
                         .HasColumnType("int");
 
                     b.HasKey("Users_id");
 
-                    b.HasIndex("FilesId");
-
-                    b.HasIndex("FoldersId");
-
-                    b.HasIndex("rolesRole_id");
+                    b.HasIndex("Role_id1");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("FilesUsers", b =>
+                {
+                    b.Property<int>("FileId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Users_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("FileId", "Users_id");
+
+                    b.HasIndex("Users_id");
+
+                    b.ToTable("FilesUsers");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.ApprovalLevels", b =>
@@ -361,27 +371,39 @@ namespace DocumentManagement.Domain.Migrations
                     b.Navigation("Folders");
                 });
 
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
+                {
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "Users")
+                        .WithMany("Folder")
+                        .HasForeignKey("Users_id");
+
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
                 {
-                    b.HasOne("DocumentManagement.Domain.Entities.Files", "Files")
-                        .WithMany("Users")
-                        .HasForeignKey("FilesId");
-
-                    b.HasOne("DocumentManagement.Domain.Entities.Folders", "Folders")
-                        .WithMany("Users")
-                        .HasForeignKey("FoldersId");
-
-                    b.HasOne("DocumentManagement.Domain.Entities.Roles", "roles")
+                    b.HasOne("DocumentManagement.Domain.Entities.Roles", "Role")
                         .WithMany("users")
-                        .HasForeignKey("rolesRole_id")
+                        .HasForeignKey("Role_id1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Files");
+                    b.Navigation("Role");
+                });
 
-                    b.Navigation("Folders");
+            modelBuilder.Entity("FilesUsers", b =>
+                {
+                    b.HasOne("DocumentManagement.Domain.Entities.Files", null)
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("roles");
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", null)
+                        .WithMany()
+                        .HasForeignKey("Users_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.ApprovalFlows", b =>
@@ -395,16 +417,9 @@ namespace DocumentManagement.Domain.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DocumentManagement.Domain.Entities.Files", b =>
-                {
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
                 {
                     b.Navigation("File");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Request_Document", b =>
@@ -415,6 +430,11 @@ namespace DocumentManagement.Domain.Migrations
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Roles", b =>
                 {
                     b.Navigation("users");
+                });
+
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
+                {
+                    b.Navigation("Folder");
                 });
 #pragma warning restore 612, 618
         }

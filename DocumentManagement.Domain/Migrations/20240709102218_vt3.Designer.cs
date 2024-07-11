@@ -4,6 +4,7 @@ using DocumentManagement.Domain.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocumentManagement.Domain.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240709102218_vt3")]
+    partial class vt3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,20 +159,21 @@ namespace DocumentManagement.Domain.Migrations
 
                     b.Property<string>("Folders_lever")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Folders_name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("User_id")
                         .HasColumnType("int");
 
+                    b.Property<int?>("Users_id")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("User_id");
+                    b.HasIndex("Users_id");
 
                     b.ToTable("Folders");
                 });
@@ -366,13 +370,11 @@ namespace DocumentManagement.Domain.Migrations
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
                 {
-                    b.HasOne("Users", "User")
+                    b.HasOne("Users", "Users")
                         .WithMany("Folder")
-                        .HasForeignKey("User_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Users_id");
 
-                    b.Navigation("User");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("FilesUsers", b =>

@@ -5,7 +5,7 @@
 namespace DocumentManagement.Domain.Migrations
 {
     /// <inheritdoc />
-    public partial class vt1 : Migration
+    public partial class vt5 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

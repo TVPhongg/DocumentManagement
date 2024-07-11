@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DocumentManagement.Domain.Migrations
 {
     /// <inheritdoc />
-    public partial class v1 : Migration
+    public partial class vt1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,22 +22,6 @@ namespace DocumentManagement.Domain.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ApprovalFlows", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Folders",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Folders_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    User_id = table.Column<int>(type: "int", nullable: false),
-                    Folders_lever = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Folders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -75,7 +59,7 @@ namespace DocumentManagement.Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Roles",
+                name: "Role",
                 columns: table => new
                 {
                     Role_id = table.Column<int>(type: "int", nullable: false)
@@ -85,7 +69,7 @@ namespace DocumentManagement.Domain.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Roles", x => x.Role_id);
+                    table.PrimaryKey("PK_Role", x => x.Role_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -110,30 +94,6 @@ namespace DocumentManagement.Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Files",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Folders_id = table.Column<int>(type: "int", nullable: false),
-                    File_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    File_path = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    User_id = table.Column<int>(type: "int", nullable: false),
-                    File_size = table.Column<float>(type: "real", nullable: false),
-                    FoldersId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Files", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Files_Folders_FoldersId",
-                        column: x => x.FoldersId,
-                        principalTable: "Folders",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -146,27 +106,15 @@ namespace DocumentManagement.Domain.Migrations
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Password_hash = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Role_id = table.Column<int>(type: "int", nullable: false),
-                    rolesRole_id = table.Column<int>(type: "int", nullable: false),
-                    FoldersId = table.Column<int>(type: "int", nullable: true),
-                    FilesId = table.Column<int>(type: "int", nullable: true)
+                    Role_id1 = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_User", x => x.Users_id);
                     table.ForeignKey(
-                        name: "FK_User_Files_FilesId",
-                        column: x => x.FilesId,
-                        principalTable: "Files",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_User_Folders_FoldersId",
-                        column: x => x.FoldersId,
-                        principalTable: "Folders",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_User_Roles_rolesRole_id",
-                        column: x => x.rolesRole_id,
-                        principalTable: "Roles",
+                        name: "FK_User_Role_Role_id1",
+                        column: x => x.Role_id1,
+                        principalTable: "Role",
                         principalColumn: "Role_id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -208,6 +156,76 @@ namespace DocumentManagement.Domain.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Folders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Folders_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    User_id = table.Column<int>(type: "int", nullable: false),
+                    Folders_lever = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Users_id = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Folders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Folders_User_Users_id",
+                        column: x => x.Users_id,
+                        principalTable: "User",
+                        principalColumn: "Users_id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Files",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Folders_id = table.Column<int>(type: "int", nullable: false),
+                    File_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    File_path = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    User_id = table.Column<int>(type: "int", nullable: false),
+                    File_size = table.Column<float>(type: "real", nullable: false),
+                    FoldersId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Files", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Files_Folders_FoldersId",
+                        column: x => x.FoldersId,
+                        principalTable: "Folders",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FilesUsers",
+                columns: table => new
+                {
+                    FileId = table.Column<int>(type: "int", nullable: false),
+                    Users_id = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FilesUsers", x => new { x.FileId, x.Users_id });
+                    table.ForeignKey(
+                        name: "FK_FilesUsers_Files_FileId",
+                        column: x => x.FileId,
+                        principalTable: "Files",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FilesUsers_User_Users_id",
+                        column: x => x.Users_id,
+                        principalTable: "User",
+                        principalColumn: "Users_id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_ApprovalLevels_ApprovalFlowsId",
                 table: "ApprovalLevels",
@@ -235,19 +253,19 @@ namespace DocumentManagement.Domain.Migrations
                 column: "FoldersId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_FilesId",
-                table: "User",
-                column: "FilesId");
+                name: "IX_FilesUsers_Users_id",
+                table: "FilesUsers",
+                column: "Users_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_FoldersId",
-                table: "User",
-                column: "FoldersId");
+                name: "IX_Folders_Users_id",
+                table: "Folders",
+                column: "Users_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_User_rolesRole_id",
+                name: "IX_User_Role_id1",
                 table: "User",
-                column: "rolesRole_id");
+                column: "Role_id1");
         }
 
         /// <inheritdoc />
@@ -255,6 +273,9 @@ namespace DocumentManagement.Domain.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ApprovalSteps");
+
+            migrationBuilder.DropTable(
+                name: "FilesUsers");
 
             migrationBuilder.DropTable(
                 name: "Logs");
@@ -266,19 +287,19 @@ namespace DocumentManagement.Domain.Migrations
                 name: "Request_Document");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "Files");
 
             migrationBuilder.DropTable(
                 name: "ApprovalFlows");
 
             migrationBuilder.DropTable(
-                name: "Files");
-
-            migrationBuilder.DropTable(
-                name: "Roles");
-
-            migrationBuilder.DropTable(
                 name: "Folders");
+
+            migrationBuilder.DropTable(
+                name: "User");
+
+            migrationBuilder.DropTable(
+                name: "Role");
         }
     }
 }

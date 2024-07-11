@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using DocumentManagement.Domain.Context;
+using DocumentManagement.Application.Interfaces;
+using DocumentManagement.Application.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,6 +15,7 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("MyDB"));
 });
+builder.Services.AddScoped<IFolderService, FolderSevice>();
 
 var app = builder.Build();
 

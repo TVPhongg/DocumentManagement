@@ -4,6 +4,7 @@ using DocumentManagement.Domain.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocumentManagement.Domain.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240709101852_vt2")]
+    partial class vt2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -156,20 +159,21 @@ namespace DocumentManagement.Domain.Migrations
 
                     b.Property<string>("Folders_lever")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Folders_name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("User_id")
                         .HasColumnType("int");
 
+                    b.Property<int?>("Users_id")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("User_id");
+                    b.HasIndex("Users_id");
 
                     b.ToTable("Folders");
                 });
@@ -256,22 +260,7 @@ namespace DocumentManagement.Domain.Migrations
                     b.ToTable("Role");
                 });
 
-            modelBuilder.Entity("FilesUsers", b =>
-                {
-                    b.Property<int>("FileId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Users_id")
-                        .HasColumnType("int");
-
-                    b.HasKey("FileId", "Users_id");
-
-                    b.HasIndex("Users_id");
-
-                    b.ToTable("FilesUsers");
-                });
-
-            modelBuilder.Entity("Users", b =>
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
                 {
                     b.Property<int>("Users_id")
                         .ValueGeneratedOnAdd()
@@ -310,11 +299,29 @@ namespace DocumentManagement.Domain.Migrations
                     b.Property<int>("Role_id")
                         .HasColumnType("int");
 
+                    b.Property<int?>("Role_id1")
+                        .HasColumnType("int");
+
                     b.HasKey("Users_id");
 
-                    b.HasIndex("Role_id");
+                    b.HasIndex("Role_id1");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("FilesUsers", b =>
+                {
+                    b.Property<int>("FileId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Users_id")
+                        .HasColumnType("int");
+
+                    b.HasKey("FileId", "Users_id");
+
+                    b.HasIndex("Users_id");
+
+                    b.ToTable("FilesUsers");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.ApprovalLevels", b =>
@@ -336,7 +343,7 @@ namespace DocumentManagement.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Users", "Approver")
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "Approver")
                         .WithMany()
                         .HasForeignKey("ApproverUsers_id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -366,13 +373,20 @@ namespace DocumentManagement.Domain.Migrations
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
                 {
-                    b.HasOne("Users", "User")
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "Users")
                         .WithMany("Folder")
-                        .HasForeignKey("User_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Users_id");
 
-                    b.Navigation("User");
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
+                {
+                    b.HasOne("DocumentManagement.Domain.Entities.Roles", "Role")
+                        .WithMany("users")
+                        .HasForeignKey("Role_id1");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("FilesUsers", b =>
@@ -383,22 +397,11 @@ namespace DocumentManagement.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Users", null)
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", null)
                         .WithMany()
                         .HasForeignKey("Users_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Users", b =>
-                {
-                    b.HasOne("DocumentManagement.Domain.Entities.Roles", "Role")
-                        .WithMany("users")
-                        .HasForeignKey("Role_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.ApprovalFlows", b =>
@@ -427,7 +430,7 @@ namespace DocumentManagement.Domain.Migrations
                     b.Navigation("users");
                 });
 
-            modelBuilder.Entity("Users", b =>
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
                 {
                     b.Navigation("Folder");
                 });

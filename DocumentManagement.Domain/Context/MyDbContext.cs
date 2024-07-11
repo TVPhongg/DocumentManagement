@@ -12,13 +12,15 @@ namespace DocumentManagement.Domain.Context
     public class MyDbContext : DbContext
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
-
+        public DbSet<Folders> Folder { get; set; }
+        public DbSet<Files> File { get; set; }
         public DbSet<Request_Document> Request { get; set; }
         public DbSet<ApprovalFlows> ApprovalFlow { get; set; }
         public DbSet<ApprovalLevels> ApprovalLevel { get; set; }
         public DbSet<ApprovalSteps> ApprovalStep { get; set; }
         public DbSet<Users> User { get; set; } 
         public DbSet<Logs> Log { get; set; }
+        public DbSet<Roles> Role { get; set; }
 
 
 
