@@ -15,7 +15,7 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("MyDB"));
 });
-builder.Services.AddScoped<IFolderService, FolderSevice>();
+builder.Services.AddScoped<IFolderService, FolderService>();
 
 var app = builder.Build();
 

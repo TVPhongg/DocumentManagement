@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Application.Services
 {
-    public class FolderSevice : IFolderService
+    public class FolderService : IFolderService
     {
         public readonly MyDbContext _dbContext;
-        public FolderSevice(MyDbContext dbContext)
+        public FolderService(MyDbContext dbContext)
         {
             _dbContext = dbContext;
         }
