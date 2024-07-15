@@ -8,18 +8,23 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    [Table("ApprovalLevels")]
-    public class ApprovalLevels
+    [Table("RequestDocument")]
+    public class RequestDocument
     {
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int Step { get; set; }
-        public int FlowId { get; set; }
-        public int RoleId { get; set; }
-
-        public ICollection <Roles> Role { get; set; }
+        [Required]
+        public string Title { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public string File {  get; set; }
+        public int UserId { get; set; }
+        public int  FlowId { get; set; }
+        public ICollection<ApprovalSteps> ApprovalStep { get; set;}
+        public Users User { get; set; }
         public ApprovalFlows ApprovalFlow { get; set; }
+
 
     }
 }

@@ -14,20 +14,17 @@ namespace DocumentManagement.Domain.Entities
     public class ApprovalSteps
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int Request_id { get; set; }
-        public int User_id { get; set; }
-        public int ApprovalLevel_id { get; set; }
+        public int Step { get; set; }
+        public int UserId { get; set; }
+        public int RequestId { get; set; }        
+        public int Status { get; set; }
+        public DateTime UpdateTime { get; set; }
 
-        public string Status { get; set; }
+        public RequestDocument request {  get; set; }
 
-        public DateTime Action_date { get; set; }
-
-        public Request_Document request {  get; set; }
-
-        public Users Approver { get; set; }
-
-        public ApprovalLevels ApprovalLevel { get; set; }
+        public Users User { get; set; }
 
     }
 }

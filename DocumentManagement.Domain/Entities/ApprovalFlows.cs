@@ -12,10 +12,14 @@ namespace DocumentManagement.Domain.Entities
     public class ApprovalFlows
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }
+        public DateTime CreatedDate { get; set; }
+        
         public ICollection<ApprovalLevels> ApprovalLevels { get; set; }
+        public ICollection<RequestDocument> RequestDocument { get; set; }
 
     }
 }

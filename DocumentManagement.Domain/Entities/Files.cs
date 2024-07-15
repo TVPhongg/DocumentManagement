@@ -14,18 +14,14 @@ namespace DocumentManagement.Domain.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [ForeignKey("Foleders_id")]
-        public int Folders_id { get; set; }
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public string File_name { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public string File_path { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public DateTime Created_date { get; set; }
-        [ForeignKey("User_id")]
-        public int User_id { get; set; }
-        public float File_size { get; set; }
+        [ForeignKey("FoldersId")]
+        public int FoldersId { get; set; }
+        public string Name { get; set; }
+        public string FilePath { get; set; }
+        public DateTime CreatedDate { get; set; }
+        [ForeignKey("UserId")]
+        public int UserId { get; set; }
+        public float FileSize { get; set; }
 
 
         public virtual Folders? Folders { get; set; }

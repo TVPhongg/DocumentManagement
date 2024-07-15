@@ -8,17 +8,14 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    [Table("Request_Document")]
-    public class Request_Document
+    [Table("Department")]
+    public class Department
     {
-
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [Required]
-        public string Title { get; set; }
-        public DateTime Created_date { get; set; }
-        public string Status {  get; set; }
-        public ICollection<ApprovalSteps> ApprovalStep { get; set;}
-
+        public string Name { get; set; }
+        public virtual ICollection<Users> users { get; set; }
+        public virtual ICollection<Roles> Role { get; set; }
     }
 }
