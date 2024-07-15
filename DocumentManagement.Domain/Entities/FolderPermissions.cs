@@ -8,18 +8,15 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Domain.Entities
 {
-    [Table("ApprovalLevels")]
-    public class ApprovalLevels
+    [Table("FolderPermissions")]
+    public class FolderPermissions
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public int Step { get; set; }
-        public int FlowId { get; set; }
-        public int RoleId { get; set; }
-
-        public ICollection <Roles> Role { get; set; }
-        public ApprovalFlows ApprovalFlow { get; set; }
+        public int FolderId { get; set; }
+        public int UserId { get; set; }
+        public string Name { get; set; }
 
     }
 }
