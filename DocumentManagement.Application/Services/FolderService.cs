@@ -28,26 +28,13 @@ namespace DocumentManagement.Application.Services
         {
             var newFolder = new Folders
             {
-                Folders_name = Folder.Folders_name,
-                Folders_lever = Folder.Folders_lever,
-                Created_date = DateTime.Now,
-                User_id = Folder.User_id,
+                Name = Folder.Name,
+                FoldersLevel = Folder.FoldersLevel,
+                CreateDate = DateTime.Now,
+                UserId = Folder.UserId,
 
             };
             await _dbContext.AddAsync(newFolder);
-            await _dbContext.SaveChangesAsync();
-            var newLog = new Logs
-            {
-                Foleders_id = newFolder.Id, 
-                File_id = 0, 
-                Activity = "Thêm thư mục",
-                Created_date = DateTime.Now,
-                User_id = Folder.User_id,
-                Request_id = 0, 
-                ApprovalSteps_id = 0 
-            };
-
-            await _dbContext.AddAsync(newLog);
             await _dbContext.SaveChangesAsync();
         }
         /// <summary>
@@ -68,19 +55,6 @@ namespace DocumentManagement.Application.Services
                 _dbContext.Folder.Remove(resuilt);
                 await _dbContext.SaveChangesAsync();
             }
-            var newLog = new Logs
-            {
-                Foleders_id = resuilt.Id,
-                File_id = 0,
-                Activity = "xóa thư mục",
-                Created_date = DateTime.Now,
-                User_id = resuilt.User_id,
-                Request_id = 0,
-                ApprovalSteps_id = 0
-            };
-
-            await _dbContext.AddAsync(newLog);
-            await _dbContext.SaveChangesAsync();
         }
         /// <summary>
         /// Hàm để lấy tất cả Folder theo quyền người dùng
@@ -100,16 +74,16 @@ namespace DocumentManagement.Application.Services
         {
             var folders = await _dbContext.Folder
                    .Include(f => f.User) 
-                   .Where(f => f.Folders_name.Contains(searchTerm) || f.User.Email.Contains(searchTerm))
+                   .Where(f => f.Name.Contains(searchTerm) || f.User.Email.Contains(searchTerm))
                    .ToListAsync();
 
             var folderDTOs = folders.Select(f => new Folder_DTOs
             {
                 Id = f.Id,
-                Folders_name = f.Folders_name,
-                Created_date = f.Created_date,
-                User_id = f.User_id,
-                Folders_lever = f.Folders_lever
+                Name = f.Name,
+                CreateDate = f.CreateDate,
+                UserId = f.UserId,
+                FoldersLevel = f.FoldersLevel
             });
 
             return folderDTOs;
@@ -131,22 +105,9 @@ namespace DocumentManagement.Application.Services
                 throw new KeyNotFoundException($"Không tìm thấy thư mục với ID {id}");
             }else
             {
-                existingFolder.Folders_name = Folder.Folders_name;
+                existingFolder.Name = Folder.Name;
                 await _dbContext.SaveChangesAsync();
             }
-            var newLog = new Logs
-            {
-                Foleders_id = existingFolder.Id,
-                File_id = 0,
-                Activity = "Update tên thư mục",
-                Created_date = DateTime.Now,
-                User_id = existingFolder.User_id,
-                Request_id = 0,
-                ApprovalSteps_id = 0
-            };
-
-            await _dbContext.AddAsync(newLog);
-            await _dbContext.SaveChangesAsync();
         }
 
     }

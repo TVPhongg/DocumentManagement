@@ -15,18 +15,11 @@ namespace DocumentManagement.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string Folders_name { get; set; }
-
-        public DateTime Created_date { get; set; }
-
-        [ForeignKey("User")]
-        public int User_id { get; set; }
-
-        [StringLength(50)]
-        public string Folders_lever { get; set; }
-
+        public string Name { get; set; }
+        public DateTime CreateDate { get; set; }
+        [ForeignKey("UserId")]
+        public int UserId { get; set; }
+        public string FoldersLevel { get; set; }
         public virtual ICollection<Files>? File { get; set; }
         public virtual Users? User { get; set; }
     }

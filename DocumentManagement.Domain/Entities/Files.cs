@@ -14,14 +14,16 @@ namespace DocumentManagement.Domain.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        [ForeignKey("Foleders_id")]
-        public int Folders_id { get; set; }
-        public string File_name { get; set; }
-        public string File_path { get; set; }
-        public DateTime Created_date { get; set; }
-        [ForeignKey("User_id")]
-        public int User_id { get; set; }
-        public float File_size { get; set; }
+
+        [ForeignKey("FoldersId")]
+        public int FoldersId { get; set; }
+        public string Name { get; set; }
+        public string FilePath { get; set; }
+        public DateTime CreatedDate { get; set; }
+        [ForeignKey("UserId")]
+        public int UserId { get; set; }
+        public float FileSize { get; set; }
+
         public virtual Folders? Folders { get; set; }
         public virtual ICollection<Users>? Users { get; set; }
 

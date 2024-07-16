@@ -1,6 +1,7 @@
-﻿using DocumentManagement.Application.DTOs;
+﻿ using DocumentManagement.Application.DTOs;
 using DocumentManagement.Application.Interfaces;
 using DocumentManagement.Domain.Context;
+using DocumentManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -23,17 +24,43 @@ namespace DocumentManagement.Application.Services
             throw new NotImplementedException();
         }
 
-        public Task DeleteFile(int id)
+        public async Task DeleteFile(int id)
         {
-            throw new NotImplementedException();
+            var reesuilt = await _dbContext.File.SingleOrDefaultAsync(x => x.Id == id);
+            if (reesuilt != null)
+            {
+                _dbContext.File.Remove(reesuilt);
+                await _dbContext.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("ID không tồn tại");
+            }
         }
 
-        public Task<IEnumerable<File_DTOs>> GetAllFile(int user_id)
+        public async Task<File_DTOs> GetAllFile(int foldersId)
         {
-            throw new NotImplementedException();
+            var resuilt = await _dbContext.File.SingleOrDefaultAsync(p => p.FoldersId == foldersId);
+            if (resuilt == null)
+            {
+                throw new Exception("ID không tồn tại");
+            }
+            else
+            {
+                return new File_DTOs
+                {
+                    Id = resuilt.Id,
+                    FoldersId = resuilt.FoldersId,
+                    Name = resuilt.Name,
+                    FilePath = resuilt.FilePath,
+                    CreatedDate = resuilt.CreatedDate,
+                    UserId = resuilt.UserId,
+                    FileSize = resuilt.FileSize,
+                };
+            }
         }
 
-        public Task<IEnumerable<File_DTOs>> SearchFile(string searchTerm)
+        public Task<File_DTOs> SearchFile(string searchTerm)
         {
             throw new NotImplementedException();
         }

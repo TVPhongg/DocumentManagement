@@ -17,7 +17,7 @@ namespace DocumentManagement.Controllers
         {
             _folderService = folderService;
         }
-        [HttpPatch("/updatefolders/{id}")]
+        [HttpPatch("/folders/{id}")]
         public async Task<ResponseModel> UpdateFolder(Folder_DTOs Folder, int id)
         {
             try
@@ -43,7 +43,7 @@ namespace DocumentManagement.Controllers
             }
 
         }
-        [HttpPost("/addfolders")]
+        [HttpPost("/folders")]
         public async Task<ResponseModel> Addfolders (Folder_DTOs Folder)
         {
             try
@@ -67,7 +67,7 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpDelete("/deletefolders/{id}")]
+        [HttpDelete("/folders/{id}")]
         public async Task<ResponseModel> DeleteFolders(int id)
         {
             try
