@@ -49,7 +49,6 @@ namespace DocumentManagement.Controllers
             try
             {
                 await _folderService.AddFolder(Folder);
-
                 var response = new ResponseModel
                 {
                     statusCode = 201,
