@@ -15,7 +15,6 @@ namespace DocumentManagement.Domain.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string Name { get; set; }
-        public virtual ICollection<Users> users { get; set; }
-        public virtual ICollection<Roles> Role { get; set; }
+        public virtual ICollection<Users> Users { get; set; }
     }
 }

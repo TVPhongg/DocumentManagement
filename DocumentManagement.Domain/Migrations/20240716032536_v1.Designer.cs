@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocumentManagement.Domain.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240715085358_v1")]
+    [Migration("20240716032536_v1")]
     partial class v1
     {
         /// <inheritdoc />
@@ -65,6 +65,8 @@ namespace DocumentManagement.Domain.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FlowId");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("ApprovalLevels");
                 });
@@ -138,6 +140,10 @@ namespace DocumentManagement.Domain.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FileId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("FilePermissions");
                 });
 
@@ -196,6 +202,10 @@ namespace DocumentManagement.Domain.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("FolderId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("FolderPermissions");
                 });
 
@@ -222,9 +232,6 @@ namespace DocumentManagement.Domain.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
 
                     b.ToTable("Folders");
                 });
@@ -289,9 +296,6 @@ namespace DocumentManagement.Domain.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ApprovalFlowId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
@@ -311,7 +315,7 @@ namespace DocumentManagement.Domain.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApprovalFlowId");
+                    b.HasIndex("FlowId");
 
                     b.HasIndex("UserId");
 
@@ -326,22 +330,17 @@ namespace DocumentManagement.Domain.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ApprovalLevelId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("DepartmentId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("ApprovalLevelId");
-
-                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Role");
                 });
@@ -383,6 +382,8 @@ namespace DocumentManagement.Domain.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<string>("Address")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -394,9 +395,6 @@ namespace DocumentManagement.Domain.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("FilesId")
-                        .HasColumnType("int");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -424,7 +422,7 @@ namespace DocumentManagement.Domain.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("FilesId");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("User");
                 });
@@ -437,19 +435,27 @@ namespace DocumentManagement.Domain.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("DocumentManagement.Domain.Entities.Roles", "Role")
+                        .WithMany("ApprovalLevels")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("ApprovalFlow");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.ApprovalSteps", b =>
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.RequestDocument", "request")
-                        .WithMany("ApprovalStep")
+                        .WithMany("ApprovalSteps")
                         .HasForeignKey("RequestId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Users", "User")
-                        .WithMany("ApprovalStep")
+                        .WithMany("ApprovalSteps")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -459,24 +465,51 @@ namespace DocumentManagement.Domain.Migrations
                     b.Navigation("request");
                 });
 
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.FilePermissions", b =>
+                {
+                    b.HasOne("DocumentManagement.Domain.Entities.Files", "File")
+                        .WithMany("FilePermissions")
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Users", "User")
+                        .WithMany("FilePermissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("File");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Files", b =>
                 {
-                    b.HasOne("DocumentManagement.Domain.Entities.Folders", "Folders")
+                    b.HasOne("DocumentManagement.Domain.Entities.Folders", "Folder")
                         .WithMany("File")
                         .HasForeignKey("FoldersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Folders");
+                    b.Navigation("Folder");
                 });
 
-            modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.FolderPermissions", b =>
                 {
-                    b.HasOne("Users", "User")
-                        .WithOne("Folders")
-                        .HasForeignKey("DocumentManagement.Domain.Entities.Folders", "UserId")
+                    b.HasOne("DocumentManagement.Domain.Entities.Folders", "Folder")
+                        .WithMany("FolderPermissions")
+                        .HasForeignKey("FolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Users", "User")
+                        .WithMany("FolderPermissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Folder");
 
                     b.Navigation("User");
                 });
@@ -484,13 +517,13 @@ namespace DocumentManagement.Domain.Migrations
             modelBuilder.Entity("DocumentManagement.Domain.Entities.RequestDocument", b =>
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.ApprovalFlows", "ApprovalFlow")
-                        .WithMany("RequestDocument")
-                        .HasForeignKey("ApprovalFlowId")
+                        .WithMany("RequestDocuments")
+                        .HasForeignKey("FlowId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Users", "User")
-                        .WithMany("RequestDocument")
+                        .WithMany("RequestDocuments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -500,25 +533,10 @@ namespace DocumentManagement.Domain.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DocumentManagement.Domain.Entities.Roles", b =>
-                {
-                    b.HasOne("DocumentManagement.Domain.Entities.ApprovalLevels", "ApprovalLevel")
-                        .WithMany("Role")
-                        .HasForeignKey("ApprovalLevelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DocumentManagement.Domain.Entities.Department", null)
-                        .WithMany("Role")
-                        .HasForeignKey("DepartmentId");
-
-                    b.Navigation("ApprovalLevel");
-                });
-
             modelBuilder.Entity("DocumentManagement.Domain.Entities.UserPermission", b =>
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.Permission", "Permission")
-                        .WithMany("UserPermission")
+                        .WithMany("UserPermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -537,77 +555,70 @@ namespace DocumentManagement.Domain.Migrations
             modelBuilder.Entity("Users", b =>
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.Department", null)
-                        .WithMany("users")
+                        .WithMany("Users")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DocumentManagement.Domain.Entities.Files", "Files")
+                    b.HasOne("DocumentManagement.Domain.Entities.Roles", "Role")
                         .WithMany("Users")
-                        .HasForeignKey("FilesId");
-
-                    b.HasOne("DocumentManagement.Domain.Entities.Roles", "roles")
-                        .WithMany("users")
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Files");
-
-                    b.Navigation("roles");
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.ApprovalFlows", b =>
                 {
                     b.Navigation("ApprovalLevels");
 
-                    b.Navigation("RequestDocument");
-                });
-
-            modelBuilder.Entity("DocumentManagement.Domain.Entities.ApprovalLevels", b =>
-                {
-                    b.Navigation("Role");
+                    b.Navigation("RequestDocuments");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Department", b =>
                 {
-                    b.Navigation("Role");
-
-                    b.Navigation("users");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Files", b =>
                 {
-                    b.Navigation("Users");
+                    b.Navigation("FilePermissions");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Folders", b =>
                 {
                     b.Navigation("File");
+
+                    b.Navigation("FolderPermissions");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Permission", b =>
                 {
-                    b.Navigation("UserPermission");
+                    b.Navigation("UserPermissions");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.RequestDocument", b =>
                 {
-                    b.Navigation("ApprovalStep");
+                    b.Navigation("ApprovalSteps");
                 });
 
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Roles", b =>
                 {
-                    b.Navigation("users");
+                    b.Navigation("ApprovalLevels");
+
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Users", b =>
                 {
-                    b.Navigation("ApprovalStep");
+                    b.Navigation("ApprovalSteps");
 
-                    b.Navigation("Folders");
+                    b.Navigation("FilePermissions");
 
-                    b.Navigation("RequestDocument");
+                    b.Navigation("FolderPermissions");
+
+                    b.Navigation("RequestDocuments");
                 });
 #pragma warning restore 612, 618
         }

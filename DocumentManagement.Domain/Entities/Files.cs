@@ -24,8 +24,7 @@ namespace DocumentManagement.Domain.Entities
         public int UserId { get; set; }
         public float FileSize { get; set; }
 
-        public virtual Folders? Folders { get; set; }
-        public virtual ICollection<Users>? Users { get; set; }
-
+        public virtual Folders? Folder { get; set; }
+        public ICollection<FilePermissions> FilePermissions { get; set; }
     }
 }

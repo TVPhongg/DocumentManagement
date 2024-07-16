@@ -17,6 +17,9 @@ namespace DocumentManagement.Domain.Entities
         public int FileId { get; set; }
         public int UserId { get; set; }
         public string Name { get; set; }
+        public virtual Users? User { get; set; }
+        public virtual Files? File { get; set; }
+
 
     }
 }

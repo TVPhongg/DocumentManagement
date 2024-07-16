@@ -72,21 +72,7 @@ namespace DocumentManagement.Application.Services
         /// <returns></returns>
         public async Task<IEnumerable<Folder_DTOs>> SearchFolder(string searchTerm)
         {
-            var folders = await _dbContext.Folder
-                   .Include(f => f.User) 
-                   .Where(f => f.Name.Contains(searchTerm) || f.User.Email.Contains(searchTerm))
-                   .ToListAsync();
-
-            var folderDTOs = folders.Select(f => new Folder_DTOs
-            {
-                Id = f.Id,
-                Name = f.Name,
-                CreateDate = f.CreateDate,
-                UserId = f.UserId,
-                FoldersLevel = f.FoldersLevel
-            });
-
-            return folderDTOs;
+            throw new NotImplementedException();
         }
 
         /// <summary>

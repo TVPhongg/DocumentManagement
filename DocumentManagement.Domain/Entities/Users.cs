@@ -30,10 +30,10 @@ public class Users
         public int RoleId { get; set; }
         [ForeignKey("DepartmentId")]
         public int DepartmentId { get; set; }
-        public virtual Roles roles { get; set; }
-        public virtual Folders? Folders { get; set; }
-        public virtual Files? Files { get; set; }
-        public ICollection<RequestDocument> RequestDocument { get; set; }
-        public ICollection<ApprovalSteps> ApprovalStep { get; set; }
+        public virtual Roles Role { get; set; }
+        public ICollection<RequestDocument> RequestDocuments{ get; set; }
+        public ICollection<ApprovalSteps> ApprovalSteps { get; set; }
+        public ICollection<FolderPermissions> FolderPermissions { get; set; }
+        public ICollection<FilePermissions> FilePermissions { get; set; } 
 
 }

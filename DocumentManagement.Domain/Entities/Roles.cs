@@ -13,11 +13,14 @@ namespace DocumentManagement.Domain.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-
+        [Required]
+        [StringLength(50)]
+        public string Name { get; set; }
         [Required]
         [StringLength(50)]
         public string Description { get; set; }
-        public virtual ICollection<Users> users { get; set; }
-       public virtual ApprovalLevels ApprovalLevel{ get; set; }
+        public virtual ICollection<Users> Users { get; set; }
+        public virtual ICollection<ApprovalLevels> ApprovalLevels{ get; set; }
+
     }
 }
