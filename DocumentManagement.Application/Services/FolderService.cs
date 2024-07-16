@@ -66,27 +66,14 @@ namespace DocumentManagement.Application.Services
             throw new NotImplementedException();
         }
         /// <summary>
-        /// Tim kiếm folder theo tên folder và email cảu người đã tạo thư mục ấy
+        /// Tim kiếm folder theo tên folder và email của người đã tạo thư mục ấy
         /// </summary>
         /// <param name="searchTerm"></param>
         /// <returns></returns>
         public async Task<IEnumerable<Folder_DTOs>> SearchFolder(string searchTerm)
         {
-            var folders = await _dbContext.Folder
-                   .Include(f => f.User) 
-                   .Where(f => f.Name.Contains(searchTerm) || f.User.Email.Contains(searchTerm))
-                   .ToListAsync();
 
-            var folderDTOs = folders.Select(f => new Folder_DTOs
-            {
-                Id = f.Id,
-                Name = f.Name,
-                CreateDate = f.CreateDate,
-                UserId = f.UserId,
-                FoldersLevel = f.FoldersLevel
-            });
-
-            return folderDTOs;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -103,9 +90,10 @@ namespace DocumentManagement.Application.Services
             if (existingFolder == null)
             {
                 throw new KeyNotFoundException($"Không tìm thấy thư mục với ID {id}");
-            }else
+            }
+            else
             {
-                existingFolder.FoldersLevel = Folder.FoldersLevel;
+                existingFolder.Name = Folder.Name;
                 await _dbContext.SaveChangesAsync();
             }
         }

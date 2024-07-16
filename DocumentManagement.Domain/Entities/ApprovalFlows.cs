@@ -19,7 +19,6 @@ namespace DocumentManagement.Domain.Entities
         public DateTime CreatedDate { get; set; }
         
         public ICollection<ApprovalLevels> ApprovalLevels { get; set; }
-        public ICollection<RequestDocument> RequestDocument { get; set; }
-
+        public ICollection<RequestDocument> RequestDocuments { get; set; }
     }
 }

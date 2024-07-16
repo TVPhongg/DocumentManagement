@@ -8,14 +8,15 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Application.DTOs
 {
-    public class Folder_DTOs
+    public class File_DTOs
     {
-
         public int Id { get; set; }
+
+        public int FoldersId { get; set; }
         public string Name { get; set; }
-        public DateTime CreateDate { get; set; }
+        public string FilePath { get; set; }
+        public DateTime CreatedDate { get; set; }
         public int UserId { get; set; }
-        public string FoldersLevel { get; set; }
+        public float FileSize { get; set; }
     }
-    
 }

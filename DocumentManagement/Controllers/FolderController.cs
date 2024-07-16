@@ -17,7 +17,7 @@ namespace DocumentManagement.Controllers
         {
             _folderService = folderService;
         }
-        [HttpPatch("/updatefolders/{id}")]
+        [HttpPatch("/folders/{id}")]
         public async Task<ResponseModel> UpdateFolder(Folder_DTOs Folder, int id)
         {
             try
@@ -43,7 +43,7 @@ namespace DocumentManagement.Controllers
             }
 
         }
-        [HttpPost("/addfolders")]
+        [HttpPost("/folders")]
         public async Task<ResponseModel> Addfolders (Folder_DTOs Folder)
         {
             try
@@ -67,7 +67,7 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpDelete("/deletefolders/{id}")]
+        [HttpDelete("/folders/{id}")]
         public async Task<ResponseModel> DeleteFolders(int id)
         {
             try
@@ -91,30 +91,6 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpGet("/folders/{searchTerm}")]
-        public async Task<ResponseModel> SearchFolder (string searchTerm)
-        {
-            try
-            {
-                var resuilt = await _folderService.SearchFolder(searchTerm);
-
-                var response = new ResponseModel
-                {
-                    statusCode = 200,
-                    message = "Bạn tìm kiếm thư mục thành công.",
-                    data= resuilt
-                };
-                return response;
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = new ResponseModel
-                {
-                    statusCode = 403,
-                    message = "Bạn tìm kiếm thư mục không thành công."
-                };
-                return errorResponse;
-            }
-        }
+       
     }
 }

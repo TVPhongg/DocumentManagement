@@ -14,6 +14,7 @@ namespace DocumentManagement.Domain.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         [ForeignKey("FoldersId")]
         public int FoldersId { get; set; }
         public string Name { get; set; }
@@ -23,9 +24,7 @@ namespace DocumentManagement.Domain.Entities
         public int UserId { get; set; }
         public float FileSize { get; set; }
 
-
-        public virtual Folders? Folders { get; set; }
-        public virtual ICollection<Users>? Users { get; set; }
-
+        public virtual Folders? Folder { get; set; }
+        public ICollection<FilePermissions> FilePermissions { get; set; }
     }
 }

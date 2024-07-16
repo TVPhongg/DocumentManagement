@@ -27,33 +27,34 @@ namespace DocumentManagement.Domain.Context
         public DbSet<UserPermission> UserPermission { get; set; }
         public DbSet<Folders> Folder { get; set; }
         public DbSet<Files> File { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // User - Role relationship
             modelBuilder.Entity<Users>()
-           .HasOne(u => u.roles)
-           .WithMany(r => r.users)
+           .HasOne(u => u.Role)
+           .WithMany(r => r.Users)
            .HasForeignKey(u => u.Id)
            .OnDelete(DeleteBehavior.Restrict); // or NoAction
 
             // RequestDocument - User relationship
             modelBuilder.Entity<RequestDocument>()
                 .HasOne(rd => rd.User)
-                .WithMany(u => u.RequestDocument)
+                .WithMany(u => u.RequestDocuments)
                 .HasForeignKey(rd => rd.UserId)
                 .OnDelete(DeleteBehavior.Restrict); // or NoAction
 
             // ApprovalStep - User relationship
             modelBuilder.Entity<ApprovalSteps>()
                 .HasOne(a => a.User)
-                .WithMany(u => u.ApprovalStep)
+                .WithMany(u => u.ApprovalSteps)
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Restrict); // or NoAction
 
             // ApprovalStep - RequestDocument relationship
             modelBuilder.Entity<ApprovalSteps>()
                 .HasOne(r => r.request)
-                .WithMany(rd => rd.ApprovalStep)
+                .WithMany(rd => rd.ApprovalSteps)
                 .HasForeignKey(r => r.RequestId)
                 .OnDelete(DeleteBehavior.Restrict); // or NoAction
 
@@ -63,7 +64,24 @@ namespace DocumentManagement.Domain.Context
                 .WithMany(af => af.ApprovalLevels)
                 .HasForeignKey(al => al.FlowId)
                 .OnDelete(DeleteBehavior.Restrict); // or NoAction
-        
+
+            modelBuilder.Entity<ApprovalLevels>()
+               .HasOne(r => r.Role)
+               .WithMany(al => al. ApprovalLevels)
+               .HasForeignKey(r => r.RoleId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RequestDocument>()
+               .HasOne(r => r.ApprovalFlow)
+               .WithMany(al => al.RequestDocuments)
+               .HasForeignKey(r => r.FlowId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Users>()
+               .HasOne(u => u.Role)
+               .WithMany(r => r.Users)
+               .HasForeignKey(u => u.RoleId)
+               .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
