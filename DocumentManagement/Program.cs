@@ -17,6 +17,8 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 });
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
