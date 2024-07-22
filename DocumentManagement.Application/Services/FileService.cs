@@ -38,16 +38,17 @@ namespace DocumentManagement.Application.Services
             }
         }
 
-        public async Task<File_DTOs> GetAllFile(int foldersId)
+        public async Task<List<File_DTOs>> GetAllFile(int foldersId)
         {
-            var resuilt = await _dbContext.File.SingleOrDefaultAsync(p => p.FoldersId == foldersId);
-            if (resuilt == null)
+            var results = await _dbContext.File.Where(p => p.FoldersId == foldersId).ToListAsync();
+
+            if (results == null || !results.Any())
             {
                 throw new Exception("ID không tồn tại");
             }
             else
             {
-                return new File_DTOs
+                return results.Select(resuilt => new File_DTOs
                 {
                     Id = resuilt.Id,
                     FoldersId = resuilt.FoldersId,
@@ -56,9 +57,10 @@ namespace DocumentManagement.Application.Services
                     CreatedDate = resuilt.CreatedDate,
                     UserId = resuilt.UserId,
                     FileSize = resuilt.FileSize,
-                };
+                }).ToList();
             }
         }
+
 
         public Task<File_DTOs> SearchFile(string searchTerm)
         {

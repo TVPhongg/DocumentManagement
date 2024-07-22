@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DocumentManagement.Domain.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240716040624_v1")]
-    partial class v1
+    [Migration("20240722032646_v2")]
+    partial class v2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,7 +128,7 @@ namespace DocumentManagement.Domain.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FileId")
+                    b.Property<int?>("FileId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -190,7 +190,7 @@ namespace DocumentManagement.Domain.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FolderId")
+                    b.Property<int?>("FolderId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -469,9 +469,7 @@ namespace DocumentManagement.Domain.Migrations
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.Files", "File")
                         .WithMany("FilePermissions")
-                        .HasForeignKey("FileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FileId");
 
                     b.HasOne("Users", "User")
                         .WithMany("FilePermissions")
@@ -499,9 +497,7 @@ namespace DocumentManagement.Domain.Migrations
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.Folders", "Folder")
                         .WithMany("FolderPermissions")
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("FolderId");
 
                     b.HasOne("Users", "User")
                         .WithMany("FolderPermissions")

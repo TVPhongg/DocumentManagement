@@ -17,7 +17,13 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 });
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IFileService, FileService>();
-
+builder.Services.AddCors(option => option.AddPolicy("DocumentPolicy", policy =>
+{
+    policy
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+}));
 
 var app = builder.Build();
 
@@ -27,7 +33,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("DocumentPolicy");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

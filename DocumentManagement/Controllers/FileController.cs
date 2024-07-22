@@ -10,13 +10,13 @@ namespace DocumentManagement.Controllers
     [ApiController]
     public class FileController : ControllerBase
     {
-        private readonly FileService _fileService;
+        private readonly IFileService _fileService;
 
-        public FileController(FileService fileService)
+        public FileController(IFileService fileService)
         {
             _fileService = fileService;
         }
-        [HttpGet("/file/{folderId}")]
+        [HttpGet("/api/file/{folderId}")]
         public async Task<ResponseModel> GetAll(int folderId)
         {
             try
