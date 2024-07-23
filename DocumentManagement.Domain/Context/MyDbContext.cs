@@ -34,7 +34,7 @@ namespace DocumentManagement.Domain.Context
             modelBuilder.Entity<Users>()
            .HasOne(u => u.Role)
            .WithMany(r => r.Users)
-           .HasForeignKey(u => u.Id)
+                .HasForeignKey(u => u.RoleId)  // Use RoleId as the foreign key
            .OnDelete(DeleteBehavior.Restrict); // or NoAction
 
             // RequestDocument - User relationship
