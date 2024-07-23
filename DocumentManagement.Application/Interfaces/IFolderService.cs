@@ -9,8 +9,8 @@ namespace DocumentManagement.Application.Interfaces
 {
     public interface IFolderService
     {
-        Task<List<Folder_DTOs>> GetAllFolder();
-        Task AddFolder(Folder_DTOs Folder, int currentUserId);
+        Task<List<Folder_DTOs>> GetAllFolder(int currentUserId);
+        Task AddFolder(Folder_DTOs Folder);
         Task UpdateFolder(string newName, int id, int currentUserId);
         Task DeleteFolder(int id, int currentUserId);
         Task<List<Folder_DTOs>> SearchFolder(string searchTerm);

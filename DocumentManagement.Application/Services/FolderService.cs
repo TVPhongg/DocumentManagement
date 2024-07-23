@@ -3,12 +3,6 @@ using DocumentManagement.Application.Interfaces;
 using DocumentManagement.Domain.Context;
 using Microsoft.EntityFrameworkCore;
 using DocumentManagement.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocumentManagement.Application.Services
 {
@@ -24,9 +18,9 @@ namespace DocumentManagement.Application.Services
     /// </summary>
     /// <param name="Folder"></param>
     /// <returns></returns>
-        public async Task AddFolder(Folder_DTOs Folder, int currentUserId)
+        public async Task AddFolder(Folder_DTOs Folder)
         {
-            var hasPermission = await _dbContext.FolderPermission.AnyAsync(p => p.UserId == currentUserId && p.Name == "Create");
+            var hasPermission = await _dbContext.FolderPermission.AnyAsync(p => p.UserId == Folder.UserId && p.Name == "Create");
             if (!hasPermission)
             {
                 throw new Exception("Bạn không có quyền thực hiện hành động này.");
@@ -51,15 +45,16 @@ namespace DocumentManagement.Application.Services
     /// <exception cref="Exception"></exception>
         public async Task DeleteFolder(int id, int currentUserId)
         {
-            // Tìm thư mục theo ID
             var folder = await _dbContext.Folder.SingleOrDefaultAsync(p => p.Id == id);
             if (folder == null)
             {
                 throw new Exception($"Không tìm thấy thư mục với ID {id}");
             }
-
-            // Kiểm tra quyền xóa thư mục trong bảng phân quyền
-            var hasPermission = await _dbContext.FolderPermission.AnyAsync(p => p.FolderId == id && p.UserId == currentUserId && p.Name == "Delete");
+            if (folder.UserId != currentUserId)
+            {
+                throw new UnauthorizedAccessException("Bạn không có quyền thực hiện hành động này.");
+            }
+            var hasPermission = await _dbContext.FolderPermission.AnyAsync(p => p.UserId == currentUserId && p.Name == "Delete");
             if (!hasPermission)
             {
                 throw new Exception("Bạn không có quyền thực hiện hành động này.");
@@ -69,34 +64,71 @@ namespace DocumentManagement.Application.Services
             _dbContext.Folder.Remove(folder);
             await _dbContext.SaveChangesAsync();
         }
-    /// <summary>
-    /// Hàm để lấy tất cả Folder theo quyền người dùng
-    /// </summary>
-    /// <param name="user_id"></param>
-    /// <returns></returns>
-        public async Task<List<Folder_DTOs>> GetAllFolder()
+        /// <summary>
+        /// Hàm để lấy tất cả Folder theo quyền người dùng
+        /// </summary>
+        /// <param name="user_id"></param>
+        /// <returns></returns>
+        public async Task<List<Folder_DTOs>> GetAllFolder(int currentUserId)
         {
-            return await _dbContext.Folder
-                .Join(_dbContext.User, 
+            // Lấy vai trò của người dùng hiện tại
+            var currentUserRole = await _dbContext.User
+                .Where(u => u.Id == currentUserId)
+                .Select(u => u.Role.Name)
+                .FirstOrDefaultAsync();
+
+            if (currentUserRole == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            // Xây dựng truy vấn lọc dữ liệu dựa trên vai trò
+            var foldersQuery = _dbContext.Folder
+                .Join(_dbContext.User,
                     folder => folder.UserId,
                     user => user.Id,
-                    (folder, user) => new Folder_DTOs
+                    (folder, user) => new
                     {
-                        Id = folder.Id,
-                        Name = folder.Name,
-                        CreateDate = folder.CreateDate, 
+                        folder.Id,
+                        folder.Name,
+                        folder.CreateDate,
                         UserName = user.FirstName + " " + user.LastName,
-                        UserId = folder.UserId,
-                        FoldersLevel= folder.FoldersLevel,
-                    })
+                        folder.UserId,
+                        folder.FoldersLevel
+                    });
+            if (currentUserRole == "Nhân viên")
+            {
+                foldersQuery = foldersQuery.Where(f => f.FoldersLevel == "Công khai");
+            }
+            else if (currentUserRole == "Quản lý")
+            {
+                foldersQuery = foldersQuery.Where(f => f.FoldersLevel == "Bảo mật" || f.FoldersLevel == "Công khai");
+            }
+            else
+            {
+                return new List<Folder_DTOs>();
+            }
+
+            var folders = await foldersQuery
+                .Select(f => new Folder_DTOs
+                {
+                    Id = f.Id,
+                    Name = f.Name,
+                    CreateDate = f.CreateDate,
+                    UserName = f.UserName,
+                    UserId = f.UserId,
+                    FoldersLevel = f.FoldersLevel,
+                })
                 .ToListAsync();
+
+            return folders;
         }
 
-    /// <summary> 
-    /// Tim kiếm folder theo tên folder và email của người đã tạo thư mục ấy
-    /// </summary>
-    /// <param name="searchTerm"></param>
-    /// <returns></returns>
+        /// <summary> 
+        /// Tim kiếm folder theo tên folder và email của người đã tạo thư mục ấy
+        /// </summary>
+        /// <param name="searchTerm"></param>
+        /// <returns></returns>
         public async Task<List<Folder_DTOs>> SearchFolder(string searchTerm)
         {
 

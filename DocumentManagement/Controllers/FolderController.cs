@@ -18,11 +18,11 @@ namespace DocumentManagement.Controllers
             _folderService = folderService;
         }
         [HttpGet("/api/folders")]
-        public async Task<ResponseModel> GetAll()
+        public async Task<ResponseModel> GetAll(int currentUserId)
         {
             try
             {
-                var result = await _folderService.GetAllFolder();
+                var result = await _folderService.GetAllFolder(currentUserId);
 
                 var response = new ResponseModel
                 {

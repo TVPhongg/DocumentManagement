@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using DocumentManagement.Domain.Context;
 using DocumentManagement.Application.Interfaces;
 using DocumentManagement.Application.Services;
+using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -33,6 +34,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "file")),
+    RequestPath = "/File"
+});
 app.UseCors("DocumentPolicy");
 app.UseHttpsRedirection();
 
