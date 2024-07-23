@@ -20,10 +20,9 @@ namespace DocumentManagement.Domain.Entities
         public int UserId { get; set; }
         public int RequestId { get; set; }        
         public int Status { get; set; }
+        public string Comment { get; set; }
         public DateTime UpdateTime { get; set; }
-
         public RequestDocument request {  get; set; }
-
         public Users User { get; set; }
 
     }

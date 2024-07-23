@@ -2,12 +2,8 @@
 using DocumentManagement.Application.Interfaces;
 using DocumentManagement.Domain.Context;
 using DocumentManagement.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DocumentManagement.Application.Services
 {
@@ -19,55 +15,110 @@ namespace DocumentManagement.Application.Services
         {
             _dbContext = dbContext;
         }
-        public Task AddFile(File_DTOs File)
+        public async Task AddFile( File_DTOs fileDto, IFormFile file)
         {
-            throw new NotImplementedException();
-        }
+            var hasPermission = await _dbContext.FilePermission
+                .AnyAsync(p => p.UserId == fileDto.UserId && p.Name == "Create");
+            if (!hasPermission)
+            {
+                throw new UnauthorizedAccessException("Bạn không có quyền thực hiện hành động này.");
+            }
 
-        public async Task DeleteFile(int id)
-        {
-            var reesuilt = await _dbContext.File.SingleOrDefaultAsync(x => x.Id == id);
-            if (reesuilt != null)
+            if (file == null || file.Length == 0)
             {
-                _dbContext.File.Remove(reesuilt);
-                await _dbContext.SaveChangesAsync();
+                throw new ArgumentException("File không hợp lệ.");
             }
-            else
-            {
-                throw new Exception("ID không tồn tại");
-            }
-        }
 
-        public async Task<File_DTOs> GetAllFile(int foldersId)
-        {
-            var resuilt = await _dbContext.File.SingleOrDefaultAsync(p => p.FoldersId == foldersId);
-            if (resuilt == null)
-            {
-                throw new Exception("ID không tồn tại");
-            }
-            else
-            {
-                return new File_DTOs
+            string fileExtension = Path.GetExtension(file.FileName);
+            string fileName = $"{DateTime.Now:yyyyMMddssffff}{fileExtension}";
+            string filePath = Path.Combine(@"E:\DocumentManagement\DocumentManagement\File", fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    Id = resuilt.Id,
-                    FoldersId = resuilt.FoldersId,
-                    Name = resuilt.Name,
-                    FilePath = resuilt.FilePath,
-                    CreatedDate = resuilt.CreatedDate,
-                    UserId = resuilt.UserId,
-                    FileSize = resuilt.FileSize,
-                };
-            }
+                    await file.CopyToAsync(stream);
+                }
+
+            fileDto.Name = file.FileName;
+            fileDto.FilePath = filePath; 
+            fileDto.FileSize = file.Length; 
+
+            var newFile = new Files
+            {
+                FoldersId = fileDto.FoldersId,
+                Name = fileDto.Name,
+                FilePath = fileDto.FilePath,
+                CreatedDate = DateTime.Now,
+                UserId = fileDto.UserId,
+                FileSize = fileDto.FileSize,
+            };
+
+            await _dbContext.AddAsync(newFile);
+            await _dbContext.SaveChangesAsync();
         }
+
+        public async Task DeleteFile(int id , int currentUserId)
+        {
+            var file = await _dbContext.File.SingleOrDefaultAsync(p => p.Id == id);
+            if (file == null)
+            {
+                throw new Exception("Không tìm thấy file với ID ");
+            }
+            var hasPermission = await _dbContext.FilePermission.AnyAsync(p => p.FileId == id && p.UserId == currentUserId && p.Name == "Delete");
+            if (!hasPermission)
+            {
+                throw new Exception("Bạn không có quyền thực hiện hành động này.");
+            }
+            _dbContext.File.Remove(file);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<File_DTOs>> GetAllFile(int foldersId)
+        {
+            var results = await _dbContext.File
+                                          .Where(p => p.FoldersId == foldersId)
+                                          .Join(_dbContext.User,
+                                                file => file.UserId,
+                                                user => user.Id,
+                                                (file, user) => new File_DTOs
+                                                {
+                                                    Id = file.Id,
+                                                    Name = file.Name,
+                                                   // FilePath = file.FilePath,
+                                                    CreatedDate = file.CreatedDate,
+                                                    UserName = user.FirstName + " " + user.LastName,
+                                                    UserId = file.UserId,
+                                                    FileSize = file.FileSize,                                         
+                                                    FoldersId = file.FoldersId
+                                                })
+                                          .ToListAsync();
+
+            return results ?? new List<File_DTOs>();
+        }
+
+
 
         public Task<File_DTOs> SearchFile(string searchTerm)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateFile(File_DTOs File, int id)
+        public async Task UpdateFile(string newName, int id, int currentUserId)
         {
-            throw new NotImplementedException();
+            var file = await _dbContext.File.SingleOrDefaultAsync(p => p.Id == id);
+            if (file == null)
+            {
+                throw new KeyNotFoundException("Không tìm thấy file nào");
+            }
+            var hasPermission = await _dbContext.FilePermission.AnyAsync(p => p.UserId == currentUserId && p.Name == "Update");
+            if (!hasPermission)
+            {
+                throw new Exception("Bạn không có quyền thực hiện hành động này.");
+            }
+            else
+            {
+                file.Name = newName;
+                await _dbContext.SaveChangesAsync();
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using DocumentManagement.Domain.Context;
 using DocumentManagement.Application.Interfaces;
 using DocumentManagement.Application.Services;
+using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,8 +19,18 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IFileService, FileService>();
+<<<<<<< HEAD
 builder.Services.AddTransient< EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
+=======
+builder.Services.AddCors(option => option.AddPolicy("DocumentPolicy", policy =>
+{
+    policy
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader();
+}));
+>>>>>>> develop
 
 var app = builder.Build();
 
@@ -29,7 +40,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "file")),
+    RequestPath = "/File"
+});
+app.UseCors("DocumentPolicy");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

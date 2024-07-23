@@ -53,7 +53,7 @@ namespace DocumentManagement.Domain.Context
 
             // ApprovalStep - RequestDocument relationship
             modelBuilder.Entity<ApprovalSteps>()
-                .HasOne(r => r.request)
+                .HasOne(r => r.request) 
                 .WithMany(rd => rd.ApprovalSteps)
                 .HasForeignKey(r => r.RequestId)
                 .OnDelete(DeleteBehavior.Restrict); // or NoAction
@@ -83,5 +83,6 @@ namespace DocumentManagement.Domain.Context
                 .HasForeignKey(u => u.DepartmentId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
+
     }
 }
