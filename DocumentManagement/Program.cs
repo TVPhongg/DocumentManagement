@@ -19,10 +19,15 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IFileService, FileService>();
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 builder.Services.AddTransient< EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
 =======
+=======
+
+
+>>>>>>> Stashed changes
 builder.Services.AddCors(option => option.AddPolicy("DocumentPolicy", policy =>
 {
     policy
@@ -31,6 +36,7 @@ builder.Services.AddCors(option => option.AddPolicy("DocumentPolicy", policy =>
         .AllowAnyHeader();
 }));
 >>>>>>> develop
+
 
 var app = builder.Build();
 

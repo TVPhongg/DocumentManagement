@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 public class Users
 {
+<<<<<<< Updated upstream
 <<<<<<< HEAD
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -37,6 +38,10 @@ public class Users
         public ICollection<FolderPermissions> FolderPermissions { get; set; }
         public ICollection<FilePermissions> FilePermissions { get; set; } 
 =======
+=======
+ public ICollection<FilePermissions> FilePermissions { get; set; } 
+
+>>>>>>> Stashed changes
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
