@@ -32,7 +32,6 @@ namespace DocumentManagement.Application.Services
                 FoldersLevel = Folder.FoldersLevel,
                 CreateDate = DateTime.Now,
                 UserId = Folder.UserId,
-
             };
             await _dbContext.AddAsync(newFolder);
             await _dbContext.SaveChangesAsync();

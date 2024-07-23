@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentManagement.Application.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace DocumentManagement.Application.Interfaces
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(IEnumerable<string> to, string subject, string message);
+        Task SendEmail(SendEmailDTOs SendEmailDTOs);
     }
 }

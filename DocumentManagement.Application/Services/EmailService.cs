@@ -1,13 +1,9 @@
-﻿using DocumentManagement.Application.Interfaces;
-using MailKit.Net.Smtp;
-using MailKit.Security;
+﻿using DocumentManagement.Application.DTOs;
+using DocumentManagement.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
-using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Net.Mail;
+using System.Net;
+
 
 namespace DocumentManagement.Application.Services
 {
@@ -20,33 +16,32 @@ namespace DocumentManagement.Application.Services
             _configuration = configuration;
         }
 
-        public async Task SendEmailAsync(IEnumerable<string> to, string subject, string message)
-        {
-            var email = _configuration["EmailSettings:Email"];
-            var password = _configuration["EmailSettings:Password"];
-            var host = _configuration["EmailSettings:Host"];
-            var port = int.Parse(_configuration["EmailSettings:Port"]);
+        public async Task SendEmail(SendEmailDTOs SendEmailDTOs)
+        {        
+            var emailSettings = _configuration.GetSection("EmailSettings");
 
-            var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("MyAppName", email));
+            string smtpServer = emailSettings["SmtpServer"];
+            int smtpPort = int.Parse(emailSettings["SmtpPort"]);
+            string smtpUsername = emailSettings["SmtpUsername"];
+            string smtpPassword = emailSettings["SmtpPassword"];
+            string fromEmail = emailSettings["FromEmail"];
 
-            foreach (var recipient in to)
+            using (var client = new SmtpClient(smtpServer, smtpPort))
             {
-                emailMessage.To.Add(new MailboxAddress("", recipient));
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+                client.EnableSsl = true;
+
+                var mailMessage = new MailMessage();
+                mailMessage.From = new MailAddress(fromEmail);
+                mailMessage.To.Add(SendEmailDTOs.ToEmail);
+                mailMessage.Subject = SendEmailDTOs.Subject;
+                mailMessage.Body = SendEmailDTOs.Body;
+                mailMessage.IsBodyHtml = true;
+
+                await client.SendMailAsync(mailMessage);
             }
-
-            emailMessage.Subject = subject; 
-
-            var bodyBuilder = new BodyBuilder { TextBody = message }; 
-            emailMessage.Body = bodyBuilder.ToMessageBody();
-
-            using (var client = new SmtpClient())
-            {
-                await client.ConnectAsync(host, port, SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(email, password);
-                await client.SendAsync(emailMessage);
-                await client.DisconnectAsync(true);
-            }
-        }
+            
+        }    
     }
 }

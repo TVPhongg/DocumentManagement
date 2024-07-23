@@ -10,6 +10,9 @@ namespace DocumentManagement.Application.DTOs
 {
     public class RegisterUserDto
     {
+        public int Id { get; set; }
+        [Required]
+        [StringLength(50)]
         public string FirstName { get; set; }
         [Required]
         [StringLength(50)]
@@ -26,6 +29,9 @@ namespace DocumentManagement.Application.DTOs
         public string Password { get; set; }
 
         [Required]
+        [ForeignKey("Roles")]
         public int RoleId { get; set; }
+        [ForeignKey("DepartmentId")]
+        public int DepartmentId { get; set; }
     }
 }

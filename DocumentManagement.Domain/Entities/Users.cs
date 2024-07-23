@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 
 public class Users
 {
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -31,6 +30,7 @@ public class Users
         [ForeignKey("DepartmentId")]
         public int DepartmentId { get; set; }
         public virtual Roles Role { get; set; }
+        public Department Department { get; set; }
         public ICollection<RequestDocument> RequestDocuments{ get; set; }
         public ICollection<ApprovalSteps> ApprovalSteps { get; set; }
         public ICollection<FolderPermissions> FolderPermissions { get; set; }
