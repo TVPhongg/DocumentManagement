@@ -16,7 +16,7 @@ namespace DocumentManagement.Controllers
         {
             _fileService = fileService;
         }
-        [HttpGet("/file/{folderId}")]
+        [HttpGet("/api/file/{folderId}")]
         public async Task<ResponseModel> GetAll(int folderId)
         {
             try

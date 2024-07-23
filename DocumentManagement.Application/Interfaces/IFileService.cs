@@ -10,7 +10,7 @@ namespace DocumentManagement.Application.Interfaces
 {
     public interface IFileService
     {
-        Task <File_DTOs> GetAllFile(int foldersId);
+        Task <List<File_DTOs>> GetAllFile(int foldersId);
         Task AddFile(File_DTOs File);
         Task UpdateFile(File_DTOs File, int id);
         Task DeleteFile(int id);
