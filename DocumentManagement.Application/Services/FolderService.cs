@@ -25,6 +25,11 @@ namespace DocumentManagement.Application.Services
             {
                 throw new Exception("Bạn không có quyền thực hiện hành động này.");
             }
+            var folderExists = await _dbContext.Folder.AnyAsync(f => f.Name == Folder.Name);
+            if (folderExists)
+            {
+                throw new Exception("Tên thư mục đã tồn tại.");
+            }
             var newFolder = new Folders
             {
                 Name = Folder.Name,
@@ -131,16 +136,29 @@ namespace DocumentManagement.Application.Services
         /// <returns></returns>
         public async Task<List<Folder_DTOs>> SearchFolder(string searchTerm)
         {
-
-            throw new NotImplementedException();
+            return await _dbContext.Folder
+                .Where(folder => folder.Name.Contains(searchTerm))
+                .Join(_dbContext.User,
+                    folder => folder.UserId,
+                    user => user.Id,
+                    (folder, user) => new Folder_DTOs
+                    {
+                        Id = folder.Id,
+                        Name = folder.Name,
+                        CreateDate = folder.CreateDate,
+                        UserName = user.FirstName + " " + user.LastName,
+                        UserId = folder.UserId,
+                        FoldersLevel = folder.FoldersLevel,
+                    })
+                .ToListAsync();
         }
-    /// <summary>
-    /// Hàm update tên Folder
-    /// </summary>
-    /// <param name="Folder"></param>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
+        /// <summary>
+        /// Hàm update tên Folder
+        /// </summary>
+        /// <param name="Folder"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public async Task UpdateFolder(string newName , int id, int currentUserId)
         {
             var folder = await _dbContext.Folder.SingleOrDefaultAsync(p => p.Id == id);                 

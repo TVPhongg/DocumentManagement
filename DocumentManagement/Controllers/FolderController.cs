@@ -17,7 +17,7 @@ namespace DocumentManagement.Controllers
         {
             _folderService = folderService;
         }
-        [HttpGet("/api/folders")]
+        [HttpGet]
         public async Task<ResponseModel> GetAll(int currentUserId)
         {
             try
@@ -54,7 +54,7 @@ namespace DocumentManagement.Controllers
             }
         }
 
-        [HttpPatch("/api/folders/{id}")]
+        [HttpPatch("{id}")]
         public async Task<ResponseModel> UpdateFolder([FromBody] string newName, int id, int currentUserId)
         {
             try
@@ -92,8 +92,8 @@ namespace DocumentManagement.Controllers
             }
 
         }
-        [HttpPost("/api/folders")]
-        public async Task<ResponseModel> Addfolders (Folder_DTOs Folder, int currentUserId)
+        [HttpPost]
+        public async Task<ResponseModel> Addfolders (Folder_DTOs Folder)
         {
             try
             {
@@ -120,12 +120,12 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
-                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                    message = ex.Message
                 };
                 return errorResponse;
             }
         }
-        [HttpDelete("/api/folders/{id}")]
+        [HttpDelete("{id}")]
         public async Task<ResponseModel> DeleteFolders(int id, int currentUserId)
         {
             try
@@ -161,6 +161,42 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-       
+        [HttpGet("Search")]
+        public async Task<ResponseModel> SearchFolder(string searchTerm)
+        {
+            try
+            {
+                var result = await _folderService.SearchFolder(searchTerm);
+
+                var response = new ResponseModel
+                {
+                    statusCode = 200,
+                    message = "Thành công.",
+                    data = result
+                };
+
+                return response;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 403,
+                    message = "Tìm kiếm không thành công."
+                };
+                return errorResponse;
+            }
+            catch (Exception ex)
+            {
+
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 500,
+                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                };
+                return errorResponse;
+            }
+        }
+
     }
 }
