@@ -22,7 +22,7 @@ namespace DocumentManagement.Controllers
         {
             try
             {
-                var result = await _folderService.GetAllFolder(currentUserId);
+                var result = await _folderService.GetAllFolders(currentUserId);
 
                 var response = new ResponseModel
                 {
