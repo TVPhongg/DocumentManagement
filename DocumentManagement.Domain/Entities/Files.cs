@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DocumentManagement.Domain.Entities
 {
     [Table("Files")]
-   public class Files
+    public class Files
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

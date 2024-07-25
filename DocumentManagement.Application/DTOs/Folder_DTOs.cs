@@ -16,7 +16,5 @@ namespace DocumentManagement.Application.DTOs
         public DateTime CreateDate { get; set; }
         public int UserId { get; set; }
         public string? UserName { get; set; }
-        public string FoldersLevel { get; set; }
     }
-    
 }

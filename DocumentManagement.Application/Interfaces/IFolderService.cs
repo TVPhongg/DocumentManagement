@@ -14,5 +14,6 @@ namespace DocumentManagement.Application.Interfaces
         Task UpdateFolder(string newName, int id, int currentUserId);
         Task DeleteFolder(int id, int currentUserId);
         Task<List<Folder_DTOs>> SearchFolder(string searchTerm);
+        Task ShareFolder(List<FolderPermissionDTOs> folderPermission);
     }
 }

@@ -2,6 +2,7 @@
 using DocumentManagement.Application.DTOs;
 using DocumentManagement.Application.Interfaces;
 using DocumentManagement.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -48,7 +49,7 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
-                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                    message = ex.Message
                 };
                 return errorResponse;
             }
@@ -74,19 +75,17 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 403,
-                    message = "Bạn sửa tên thư mục không thành công."
+                    message = "Bạn Không có quyền thực hiện hành động này."
                 };
                 return errorResponse;
             }
             catch (Exception ex)
             {
-                // Ghi log lỗi để theo dõi (tùy chọn)
-                // _logger.LogError(ex, "An unexpected error occurred.");
 
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
-                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                    message = ex.Message
                 };
                 return errorResponse;
             }
@@ -111,7 +110,7 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 403,
-                    message = "Bạn thêm thư mục không thành công."
+                    message = "Bạn Không có quyền thực hiện hành động này."
                 };
                 return errorResponse;
             }
@@ -126,6 +125,7 @@ namespace DocumentManagement.Controllers
             }
         }
         [HttpDelete("{id}")]
+
         public async Task<ResponseModel> DeleteFolders(int id, int currentUserId)
         {
             try
@@ -144,7 +144,7 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 403,
-                    message = "Bạn xóa không thành công."
+                    message = "Bạn không có quyền thực hiện hành động này."
                 };
                 return errorResponse;
             }
@@ -156,7 +156,7 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
-                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                    message = ex.Message
                 };
                 return errorResponse;
             }
@@ -182,21 +182,92 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 403,
-                    message = "Tìm kiếm không thành công."
+                    message = "Bạn không có quyền thực hiện hành động này."
                 };
                 return errorResponse;
             }
             catch (Exception ex)
             {
-
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
-                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                    message = ex.Message
                 };
                 return errorResponse;
             }
         }
+        [HttpPost("Share")]
+        public async Task<ResponseModel> Sharefolders(List<FolderPermissionDTOs> folderPermission)
+        {
+            try
+            {
+                await _folderService.ShareFolder(folderPermission);
 
+                var response = new ResponseModel
+                {
+                    statusCode = 201,
+                    message = "Bạn chia sẻ thư mục thành công."
+                };
+                return response;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 403,
+                    message = "Bạn Không có quyền thực hiện hành động này."
+                };
+                return errorResponse;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 500,
+                    message = ex.Message
+                };
+                return errorResponse;
+            }
+        }
+        [HttpGet("Download/{folderId}")]
+        public async Task<IActionResult> DownloadFolder(int folderId)
+        {
+            try
+            {
+                // Lấy dữ liệu ZIP từ service
+                var zipFileBytes = await _folderService.DownloadFolder(folderId);
+
+                // Tạo tệp ZIP đính kèm để tải xuống
+                var zipFileName = $"folder_{folderId}.zip";
+                var contentType = "application/zip";
+
+                // Trả về tệp ZIP dưới dạng đính kèm
+                return File(zipFileBytes, contentType, zipFileName);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, new ResponseModel
+                {
+                    statusCode = 403,
+                    message = "Bạn không có quyền truy cập vào tài nguyên này."
+                });
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                return StatusCode(404, new ResponseModel
+                {
+                    statusCode = 404,
+                    message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new ResponseModel
+                {
+                    statusCode = 500,
+                    message = "Đã xảy ra lỗi: " + ex.Message
+                });
+            }
+        }
     }
 }
