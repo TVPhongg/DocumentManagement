@@ -18,7 +18,7 @@ namespace DocumentManagement.Application.DTOs
         public DateTime CreatedDate { get; set; }
         public string? UserName { get; set; }
         public int UserId { get; set; }
-        public float FileSize { get; set; }
-        public IFormFile file { get; set; }
+        public decimal FileSize { get; set; }
+        public List<IFormFile> file { get; set; }
     }
 }

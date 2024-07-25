@@ -229,45 +229,5 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpGet("Download/{folderId}")]
-        public async Task<IActionResult> DownloadFolder(int folderId)
-        {
-            try
-            {
-                // Lấy dữ liệu ZIP từ service
-                var zipFileBytes = await _folderService.DownloadFolder(folderId);
-
-                // Tạo tệp ZIP đính kèm để tải xuống
-                var zipFileName = $"folder_{folderId}.zip";
-                var contentType = "application/zip";
-
-                // Trả về tệp ZIP dưới dạng đính kèm
-                return File(zipFileBytes, contentType, zipFileName);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return StatusCode(403, new ResponseModel
-                {
-                    statusCode = 403,
-                    message = "Bạn không có quyền truy cập vào tài nguyên này."
-                });
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                return StatusCode(404, new ResponseModel
-                {
-                    statusCode = 404,
-                    message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new ResponseModel
-                {
-                    statusCode = 500,
-                    message = "Đã xảy ra lỗi: " + ex.Message
-                });
-            }
-        }
     }
 }
