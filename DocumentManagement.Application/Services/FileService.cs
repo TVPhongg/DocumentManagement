@@ -195,7 +195,7 @@ namespace DocumentManagement.Application.Services
             }
             else
             {
-                throw new UnauthorizedAccessException("Bạn không có quyền sửa đổi tệp này.");
+                throw new UnauthorizedAccessException();
             }
         }
 
