@@ -15,12 +15,12 @@ namespace DocumentManagement.Domain.Entities
         public int Id { get; set; }
         [Required]
         [StringLength(50)]
-        public string Name { get; set; }
+        public string RoleName { get; set; }
         [Required]
         [StringLength(50)]
         public string Description { get; set; }
-
         public virtual ICollection<Users> Users { get; set; }
+        public virtual ICollection<RolePermission> RolePermissions { get; set; }
         public virtual ICollection<ApprovalLevels> ApprovalLevels{ get; set; }
 
     }

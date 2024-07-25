@@ -24,7 +24,7 @@ namespace DocumentManagement.Domain.Context
         public DbSet<FilePermissions> FilePermission { get; set; }
         public DbSet<FolderPermissions> FolderPermission { get; set; }
         public DbSet<Permission> Permission { get; set; }
-        public DbSet<UserPermission> UserPermission { get; set; }
+        public DbSet<RolePermission> RolePermission { get; set; }
         public DbSet<Folders> Folder { get; set; }
         public DbSet<Files> File { get; set; }
 

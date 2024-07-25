@@ -17,7 +17,6 @@ namespace DocumentManagement.Domain.Entities
         public int Step { get; set; }
         public int FlowId { get; set; }
         public int RoleId { get; set; }
-
         public Roles Role { get; set; }
         public ApprovalFlows ApprovalFlow { get; set; }
 
