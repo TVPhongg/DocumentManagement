@@ -51,61 +51,83 @@ namespace DocumentManagement.Application.Services
         /// <exception cref="Exception"></exception>
         public async Task DeleteFolder(int id, int currentUserId)
         {
-            var folder = await _dbContext.Folder.SingleOrDefaultAsync(p => p.Id == id);
+            var folder = await _dbContext.Folder
+                .SingleOrDefaultAsync(f => f.Id == id);
 
-            if (folder.UserId != currentUserId)
+            if (folder == null)
             {
-                // Kiểm tra quyền chia sẻ
-                var sharedPermission = await _dbContext.FolderPermission
-                    .AnyAsync(fs => fs.FolderId == id && fs.UserId == currentUserId && fs.Name == "Delete");
-
-                if (!sharedPermission) 
-                {
-                    throw new UnauthorizedAccessException("Bạn không có quyền thực hiện hành động này.");
-                }
+                throw new ArgumentException("Thư mục không tồn tại.");
             }
-            var folderPermissions = await _dbContext.FolderPermission
-              .Where(fp => fp.FolderId == id)
-              .ToListAsync();
 
-            _dbContext.FolderPermission.RemoveRange(folderPermissions);
+            bool hasDeletePermission = folder.UserId == currentUserId || await _dbContext.FolderPermission.AnyAsync(fp => fp.FolderId == id && fp.UserId == currentUserId && fp.Name == "Delete");
+
+            if (!hasDeletePermission)
+            {
+                throw new UnauthorizedAccessException("");
+            }
+
+            // Xóa quyền và thư mục
+            _dbContext.FolderPermission.RemoveRange(_dbContext.FolderPermission.Where(fp => fp.FolderId == id));
             _dbContext.Folder.Remove(folder);
             await _dbContext.SaveChangesAsync();
         }
+
 
         /// <summary>
         /// Hàm để lấy tất cả Folder theo quyền người dùng
         /// </summary>
         /// <param name="user_id"></param>
         /// <returns></returns>
-        public async Task<List<Folder_DTOs>> GetAllFolder(int currentUserId)
+        public async Task<List<Folder_DTOs>> GetAllFolders(int currentUserId)
         {
-            // Xây dựng truy vấn để lấy tất cả các thư mục mà người dùng tạo ra hoặc được chia sẻ với người dùng
+            // Truy vấn để lấy tất cả các thư mục mà người dùng tạo ra hoặc được chia sẻ với người dùng
             var foldersQuery = _dbContext.Folder
-                .Join(_dbContext.User,
-                    folder => folder.UserId,
-                    user => user.Id,
-                    (folder, user) => new
-                    {
-                        folder.Id,
-                        folder.Name,
-                        folder.CreateDate,
-                        UserName = user.FirstName + " " + user.LastName,
-                        folder.UserId,
-                    });
-            foldersQuery = foldersQuery
                 .Where(f => f.UserId == currentUserId ||
-                            _dbContext.FolderPermission.Any(fs => fs.FolderId == f.Id && fs.UserId == currentUserId));
-            var folders = await foldersQuery
+                            _dbContext.FolderPermission.Any(fp => fp.FolderId == f.Id && fp.UserId == currentUserId))
                 .Select(f => new Folder_DTOs
                 {
                     Id = f.Id,
                     Name = f.Name,
                     CreateDate = f.CreateDate,
-                    UserName = f.UserName,
                     UserId = f.UserId,
-                })
-                .ToListAsync();
+                    UserName = _dbContext.User.Where(u => u.Id == f.UserId)
+                                              .Select(u => u.FirstName + " " + u.LastName)
+                                              .FirstOrDefault()
+                });
+
+            var folders = await foldersQuery.ToListAsync();
+
+            // Truy vấn để lấy tất cả các file được chia sẻ tới người dùng, bao gồm cả file trong thư mục của người dùng
+            var sharedFilesQuery = _dbContext.File
+                .Join(_dbContext.FilePermission,
+                      file => file.Id,
+                      fp => fp.FileId,
+                      (file, fp) => new { file, fp })
+                .Where(joined => joined.fp.UserId == currentUserId)
+                .Join(_dbContext.User,
+                      joined => joined.file.UserId,
+                      user => user.Id,
+                      (joined, user) => new
+                      {
+                          joined.file.Id,
+                          joined.file.Name,
+                          joined.file.FilePath,
+                          joined.file.CreatedDate,
+                          UserName = user.FirstName + " " + user.LastName,
+                          joined.file.FoldersId
+                      });
+
+            var sharedFiles = await sharedFilesQuery.ToListAsync();
+
+            var fileDTOs = sharedFiles.Select(f => new File_DTOs
+            {
+                Id = f.Id,
+                Name = f.Name,
+                FilePath = f.FilePath,
+                CreatedDate = f.CreatedDate,
+                UserName = f.UserName,
+                FoldersId = f.FoldersId
+            }).ToList();
 
             return folders;
         }
@@ -133,36 +155,36 @@ namespace DocumentManagement.Application.Services
                     })
                 .ToListAsync();
         }
-      /// <summary>
-      /// 
-      /// </summary>
-      /// <param name="newName"></param>
-      /// <param name="id"></param>
-      /// <param name="currentUserId"></param>
-      /// <returns></returns>
-      /// <exception cref="KeyNotFoundException"></exception>
-      /// <exception cref="UnauthorizedAccessException"></exception>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newName"></param>
+        /// <param name="id"></param>
+        /// <param name="currentUserId"></param>
+        /// <returns></returns>
+        /// <exception cref="KeyNotFoundException"></exception>
+        /// <exception cref="UnauthorizedAccessException"></exception>
         public async Task UpdateFolder(string newName, int id, int currentUserId)
         {
             var folder = await _dbContext.Folder.SingleOrDefaultAsync(p => p.Id == id);
-            var folderExists = await _dbContext.Folder.AnyAsync(f => f.Name == newName);
+            bool folderExists = await _dbContext.Folder.AnyAsync(f => f.Name == newName);
+
             if (folderExists)
             {
                 throw new Exception("Tên thư mục đã tồn tại.");
             }
-            if (folder.UserId != currentUserId)
-            {
-                var sharedPermission = await _dbContext.FolderPermission
-                    .AnyAsync(fs => fs.FolderId == id && fs.UserId == currentUserId && fs.Name == "Edit");
 
-                if (!sharedPermission)
-                {
-                    throw new UnauthorizedAccessException("Bạn không có quyền thực hiện hành động này.");
-                }
+            bool canEdit = folder.UserId == currentUserId || await _dbContext.FolderPermission.AnyAsync(fp => fp.FolderId == id && fp.UserId == currentUserId && fp.Name == "Edit");
+
+            if (!canEdit)
+            {
+                throw new UnauthorizedAccessException();
             }
+
             folder.Name = newName;
             await _dbContext.SaveChangesAsync();
         }
+
 
         public async Task ShareFolder(List<FolderPermissionDTOs> folderPermissions)
         {
