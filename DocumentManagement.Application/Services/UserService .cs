@@ -126,29 +126,152 @@ namespace DocumentManagement.Application.Services
             return loginDTO;
         }
 
-        //public Task<Users> GetUserById(int userId)
-        //{
-        //    var user = _dbContext.User
-        //   .Include(u => u.Role)
-        //   .ThenInclude(r => r.RolePermission)
-        //   .FirstOrDefault(u => u.UserId == userId);
-        //    return user;
-        //}
+        /// <summary>
+        /// Xóa người dùng
+        /// </summary>
+        /// <param name="Id">Điền Id người dùng cần xóa</param>
+        /// <returns>true:  xóa người dùng thành công
+        ///          false: xóa người dùng thất bại 
+        /// </returns>
+        public async Task<bool> DeleteUser(int Id)
+        {
+            var user = await _dbContext.User.FirstOrDefaultAsync(x => x.Id == Id);
+            if (user == null)
+            {
+                return false;
+            }
 
-        //public async Task<bool> HasPermissionAsync(int userId, string permissionName)
-        //{
-        //    var user = await _dbContext.User
-        //   .Include(u => u.Role)
-        //   .ThenInclude(r => r.RoleName)
-        //   .ThenInclude(rp => rp.)
-        //   .FirstOrDefaultAsync(u => u.Id == userId);
+            _dbContext.User.Remove(user);
+            await _dbContext.SaveChangesAsync();
+            return true;
+        }
 
-        //    if (user == null)
-        //    {
-        //        return false;
-        //    }
+        /// <summary>
+        /// Cập nhật người dùng 
+        /// </summary>
+        /// <param name="Id">Điền Id cần cập nhật</param>
+        /// <param name="userDto">Điền các trường của obj cần cập nhật</param>
+        /// <returns>true: cập nhật thành công
+        ///          false: cập nhật thất bại 
+        /// </returns>
+        public async Task<bool> UpdateUser(int Id, RegisterUserDto userDto)
+        {
+            var user = await _dbContext.User.FirstOrDefaultAsync(x => x.Id == Id);
+            if (user == null)
+            {
+                return false;
+            }
 
-        //    return user.Role.RolePermissions.Any(rp => rp.Permission.Name == permissionName);
-        //}
+            user.FirstName = userDto.FirstName;
+            user.LastName = userDto.LastName;
+            user.Email = userDto.Email;
+            user.Address = userDto.Address;
+            user.Gender = userDto.Gender;
+
+            _dbContext.User.Update(user);
+            await _dbContext.SaveChangesAsync();
+            return true;
+
+        }
+
+        /// <summary>
+        /// Lấy người dùng theo Id
+        /// </summary>
+        /// <param name="id">Điền Id người dùng </param>
+        /// <returns>true: Lấy Id người dùng thành công
+        ///          false: Lấy Id người dùng thất bại
+        /// </returns>
+        public async Task<UserDto> GetUserByIdAsync(int id)
+        {
+            var user = await _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.Department)
+                .SingleOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+                return null;
+
+            return new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Address = user.Address,
+                Email = user.Email,
+                Gender = user.Gender,
+                RoleName = user.Role.RoleName,
+                DepartmentName = user.Department.Name
+            };
+        }
+
+
+        /// <summary>
+        /// Phân trang danh sách người dùng
+        /// </summary>
+        /// <param name="pageNumber">Số trang cần lấy danh sách</param>
+        /// <param name="pageSize">Số record hay data cần lấy trong mỗi pageNumber</param>
+        /// <returns>true: trả về danh sách người dùng thành công
+        ///          false: trả về danh sách người dùng thất bại
+        /// </returns>
+        public async Task<PagedResult<UserDto>> GetUsersAsync(int pageNumber, int pageSize)
+        {
+            var query = _dbContext.User
+           .Include(u => u.Role)
+           .Include(u => u.Department);
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(user => new UserDto
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Address = user.Address,
+                    Email = user.Email,
+                    Gender = user.Gender,
+                    RoleName = user.Role.RoleName,
+                    DepartmentName = user.Department.Name
+                })
+                .ToListAsync();
+
+            return new PagedResult<UserDto>
+            {
+                TotalCount = totalCount,
+                Items = users
+            };
+        }
+
+        /// <summary>
+        /// Tìm kiếm người dùng theo email
+        /// </summary>
+        /// <param name="emailSearchTerm">Điền ký tự, cụm ký tự cần tìm kiếm</param>
+        /// <returns>true: trả về danh sách người dùng có ký tự đó
+        ///          flase: trả về người dùng thất bại và báo lỗi
+        /// </returns>
+        public async Task<IEnumerable<UserDto>> SearchUsersByEmailAsync(string emailSearchTerm)
+        {
+            var users = await _dbContext.User
+           .Include(u => u.Role)
+           .Include(u => u.Department)
+           .Where(u => u.Email.Contains(emailSearchTerm))
+           .Select(user => new UserDto
+           {
+               Id = user.Id,
+               FirstName = user.FirstName,
+               LastName = user.LastName,
+               Address = user.Address,
+               Email = user.Email,
+               Gender = user.Gender,
+               RoleName = user.Role.RoleName,
+               DepartmentName = user.Department.Name
+           })
+           .ToListAsync();
+            return users;
+        }
+
+
     }
 }

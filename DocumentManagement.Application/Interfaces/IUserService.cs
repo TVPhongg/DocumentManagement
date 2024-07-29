@@ -12,7 +12,12 @@ namespace DocumentManagement.Application.Interfaces
         Task<string> GenerateToken(Login_DTOs login_DTOs);
         Task<string> Login(string email, string password);
         Task<bool> RegisterUserAsync(RegisterUserDto userDto);
-        //Task<Users> GetUserById(int userId);
-        //Task<bool> HasPermissionAsync(int userId, string permissionName);
+        Task<bool> DeleteUser(int Id);
+        Task<bool> UpdateUser(int Id, RegisterUserDto userDto);
+        Task<UserDto> GetUserByIdAsync(int id);
+        Task<PagedResult<UserDto>> GetUsersAsync(int pageNumber, int pageSize);
+        Task<IEnumerable<UserDto>> SearchUsersByEmailAsync(string emailSearchTerm);
+
+
     }
 }

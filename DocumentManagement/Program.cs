@@ -20,7 +20,7 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddTransient< EmailService>();
-builder.Services.AddScoped<Iuser, UserService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 builder.Services.AddCors(option => option.AddPolicy("DocumentPolicy", policy =>
