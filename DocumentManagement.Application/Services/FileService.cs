@@ -132,9 +132,22 @@ namespace DocumentManagement.Application.Services
 
             return results ?? new List<File_DTOs>();
         }
-        public Task<File_DTOs> SearchFile(string searchTerm)
+        public async Task<List<File_DTOs>> SearchFile(string searchTerm)
         {
-            throw new NotImplementedException();
+            return await _dbContext.File
+                .Where(file => file.Name.Contains(searchTerm))
+                .Join(_dbContext.User,
+                    file => file.UserId,
+                    user => user.Id,
+                    (file, user) => new File_DTOs
+                    {
+                        Id = file.Id,
+                        Name = file.Name,
+                        CreatedDate = file.CreatedDate,
+                        UserName = user.FirstName + " " + user.LastName,
+                        UserId = file.UserId,
+                    })
+                .ToListAsync();
         }
 
         public async Task ShareFile(List<FilePermissionDTOs> filePermissions)

@@ -193,6 +193,41 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
+        [HttpGet("Search")]
+        public async Task<ResponseModel> SearchFile(string searchTerm)
+        {
+            try
+            {
+                var result = await _fileService.SearchFile(searchTerm);
+
+                var response = new ResponseModel
+                {
+                    statusCode = 200,
+                    message = "Thành công.",
+                    data = result   
+                };
+
+                return response;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 403,
+                    message = "Bạn không có quyền thực hiện hành động này."
+                };
+                return errorResponse;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 500,
+                    message = ex.Message
+                };
+                return errorResponse;
+            }
+        }
 
     }
 }
