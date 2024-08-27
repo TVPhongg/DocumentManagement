@@ -10,9 +10,9 @@ namespace DocumentManagement.Controllers
     [ApiController]
     public class FileController : ControllerBase
     {
-        private readonly FileService _fileService;
+        private readonly IFileService _fileService;
 
-        public FileController(FileService fileService)
+        public FileController(IFileService fileService)
         {
             _fileService = fileService;
         }

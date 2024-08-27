@@ -76,6 +76,10 @@ namespace DocumentManagement.Domain.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("RequestId")
                         .HasColumnType("int");
 
@@ -373,7 +377,7 @@ namespace DocumentManagement.Domain.Migrations
                     b.ToTable("UserPermission");
                 });
 
-            modelBuilder.Entity("Users", b =>
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -386,7 +390,7 @@ namespace DocumentManagement.Domain.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("DepartmentId")
+                    b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
@@ -451,7 +455,7 @@ namespace DocumentManagement.Domain.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Users", "User")
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "User")
                         .WithMany("ApprovalSteps")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -470,7 +474,7 @@ namespace DocumentManagement.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Users", "User")
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "User")
                         .WithMany("FilePermissions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -500,7 +504,7 @@ namespace DocumentManagement.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Users", "User")
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "User")
                         .WithMany("FolderPermissions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -519,7 +523,7 @@ namespace DocumentManagement.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Users", "User")
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "User")
                         .WithMany("RequestDocuments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -538,7 +542,7 @@ namespace DocumentManagement.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Users", "User")
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -549,19 +553,20 @@ namespace DocumentManagement.Domain.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Users", b =>
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
                 {
-                    b.HasOne("DocumentManagement.Domain.Entities.Department", null)
+                    b.HasOne("DocumentManagement.Domain.Entities.Department", "Department")
                         .WithMany("Users")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("DocumentManagement.Domain.Entities.Roles", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Department");
 
                     b.Navigation("Role");
                 });
@@ -607,7 +612,7 @@ namespace DocumentManagement.Domain.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("Users", b =>
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Users", b =>
                 {
                     b.Navigation("ApprovalSteps");
 

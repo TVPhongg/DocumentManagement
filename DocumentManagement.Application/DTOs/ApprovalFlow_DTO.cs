@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Application.DTOs
 {
-    internal class ApprovalFlow_DTO
+    public class ApprovalFlow_DTO
+
     {
-        public string FlowName { get; set; } 
-        public List<ApprovalLevel_DTO> Levels { get; set; }
+        public int Id { get; set; } 
+        public string Name { get; set; } // Tên của luồng 
+        public DateTime CreatedDate { get; set; } // ngày tạo approval
+        public List<ApprovalLevel_DTO> ApprovalLevels { get; set; } // list các bước phê duyệt
     }
 }

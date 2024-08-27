@@ -29,13 +29,13 @@ namespace DocumentManagement.Domain.Context
         public DbSet<Files> File { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+         {
             // User - Role relationship
             modelBuilder.Entity<Users>()
-           .HasOne(u => u.Role)
-           .WithMany(r => r.Users)
-           .HasForeignKey(u => u.Id)
-           .OnDelete(DeleteBehavior.Restrict); // or NoAction
+                .HasOne(u => u.Role)
+                .WithMany(r => r.Users)
+                .HasForeignKey(u => u.RoleId)  // Use RoleId as the foreign key
+                .OnDelete(DeleteBehavior.Restrict); // or NoAction
 
             // RequestDocument - User relationship
             modelBuilder.Entity<RequestDocument>()
@@ -66,22 +66,22 @@ namespace DocumentManagement.Domain.Context
                 .OnDelete(DeleteBehavior.Restrict); // or NoAction
 
             modelBuilder.Entity<ApprovalLevels>()
-               .HasOne(r => r.Role)
-               .WithMany(al => al. ApprovalLevels)
-               .HasForeignKey(r => r.RoleId)
-               .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(r => r.Role)
+                .WithMany(al => al.ApprovalLevels)
+                .HasForeignKey(r => r.RoleId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RequestDocument>()
-               .HasOne(r => r.ApprovalFlow)
-               .WithMany(al => al.RequestDocuments)
-               .HasForeignKey(r => r.FlowId)
-               .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(r => r.ApprovalFlow)
+                .WithMany(al => al.RequestDocuments)
+                .HasForeignKey(r => r.FlowId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Users>()
-               .HasOne(u => u.Role)
-               .WithMany(r => r.Users)
-               .HasForeignKey(u => u.RoleId)
-               .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(u => u.Department)
+                .WithMany(d => d.Users)
+                .HasForeignKey(u => u.DepartmentId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

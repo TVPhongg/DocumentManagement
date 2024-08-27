@@ -86,7 +86,7 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 403,
-                    message = "Bạn xóa không thành công."
+                    message = ex.Message
                 };
                 return errorResponse;
             }

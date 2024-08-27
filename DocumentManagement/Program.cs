@@ -17,7 +17,11 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 });
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IFileService, FileService>();
-
+builder.Services.AddScoped<IFlowService, ApprovalFlowService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddSingleton<IWebHostEnvironment>(builder.Environment);
+//C.o.r.s public API 
+builder.Services.AddCors(Option => Option.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -32,5 +36,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors();
 
 app.Run();
