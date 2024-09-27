@@ -21,7 +21,7 @@ namespace DocumentManagement.Controllers
         public async Task<ActionResult<IEnumerable<Roles>>> GetRoles()
         {
             var roles = await _roleService.GetRolesAsync();
-            return Ok(roles); 
+            return Ok(roles);
         }
 
         // GET: api/Roles/5

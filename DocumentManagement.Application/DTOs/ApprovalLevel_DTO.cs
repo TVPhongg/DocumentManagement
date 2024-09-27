@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace DocumentManagement.Application.DTOs
 {
-    internal class ApprovalLevel_DTO
+    public class ApprovalLevel_DTO
     {
-        public int Level { get; set; }  // Số thứ tự của cấp phê duyệt
-        public int ApproverId { get; set; }  // ID của người phê duyệt
+        public int Step { get; set; } // Bước phê duyệt 
+        public int RoleId { get; set; } //Chức phụ phê duyệt ở step này 
+
+        public string Name { get; set; }// tên role
     }
 }

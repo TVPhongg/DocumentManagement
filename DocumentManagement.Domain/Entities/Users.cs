@@ -1,10 +1,15 @@
-﻿using DocumentManagement.Domain.Entities;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public class Users
+namespace DocumentManagement.Domain.Entities
 {
-
+    public class Users
+    {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
@@ -44,4 +49,7 @@ public class Users
     public ICollection<ApprovalSteps> ApprovalSteps { get; set; }
     public ICollection<FolderPermissions> FolderPermissions { get; set; }
     public ICollection<FilePermissions> FilePermissions { get; set; }
+
+    }
+
 }

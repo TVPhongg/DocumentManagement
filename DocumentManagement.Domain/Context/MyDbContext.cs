@@ -29,7 +29,7 @@ namespace DocumentManagement.Domain.Context
         public DbSet<Files> File { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+         {
             // User - Role relationship
             modelBuilder.Entity<Users>()
                 .HasOne(u => u.Role)

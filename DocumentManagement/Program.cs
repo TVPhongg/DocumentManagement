@@ -19,6 +19,7 @@ builder.Services.AddDbContext<MyDbContext>(options =>
 
 builder.Services.AddScoped<IFolderService, FolderService>();
 builder.Services.AddScoped<IFileService, FileService>();
+
 builder.Services.AddTransient< EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
@@ -31,6 +32,12 @@ builder.Services.AddCors(option => option.AddPolicy("DocumentPolicy", policy =>
         .AllowAnyHeader();
 }));
 
+
+builder.Services.AddScoped<IFlowService, ApprovalFlowService>();
+builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddSingleton<IWebHostEnvironment>(builder.Environment);
+
+builder.Services.AddCors(Option => Option.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
 
@@ -51,5 +58,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors();
 
 app.Run();
