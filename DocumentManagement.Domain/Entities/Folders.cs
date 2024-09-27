@@ -18,7 +18,6 @@ namespace DocumentManagement.Domain.Entities
         public DateTime CreateDate { get; set; }
         [ForeignKey("UserId")]
         public int UserId { get; set; }
-        public string FoldersLevel { get; set; }
         public virtual ICollection<Files>? File { get; set; }
         public ICollection<FolderPermissions> FolderPermissions { get; set; }
     }

@@ -63,7 +63,9 @@ namespace DocumentManagement.Application.Services
 
             if (!hasDeletePermission)
             {
-                throw new UnauthorizedAccessException();
+
+                throw new UnauthorizedAccessException("");
+
             }
 
             // Xóa quyền và thư mục

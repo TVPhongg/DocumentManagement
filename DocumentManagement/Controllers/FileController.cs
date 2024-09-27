@@ -42,14 +42,12 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
             catch (Exception ex)
-            {
-                // Ghi log lỗi để theo dõi (tùy chọn)
-                // _logger.LogError(ex, "An unexpected error occurred.");
+            {;
 
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
-                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                    message = "Internal Server Error."
                 };
                 return errorResponse;
             }
@@ -79,13 +77,11 @@ namespace DocumentManagement.Controllers
             }
             catch (Exception ex)
             {
-                // Ghi log lỗi để theo dõi (tùy chọn)
-                // _logger.LogError(ex, "An unexpected error occurred.");
 
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
-                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                    message = "Internal Server Error."
                 };
                 return errorResponse;
             }
@@ -120,17 +116,23 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
-                    message = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
+                    message = "Internal Server Error."
                 };
                 return errorResponse;
             }
         }
         [HttpPost]
-        public async Task<ResponseModel> AddFile([FromForm] File_DTOs fileDto)
+        public async Task<ResponseModel> AddFile([FromForm] List<IFormFile> files, [FromForm] int foldersId, [FromForm] int userId)
         {
             try
             {
-                await _fileService.AddFile(fileDto, fileDto.file);
+                var fileDto = new File_DTOs
+                {
+                    FoldersId = foldersId,
+                    UserId = userId
+                };
+
+                await _fileService.AddFiles(fileDto, files);
 
                 var response = new ResponseModel
                 {
@@ -148,9 +150,8 @@ namespace DocumentManagement.Controllers
                 };
                 return errorResponse;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
@@ -159,5 +160,74 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
+        [HttpPost("Share")]
+        public async Task<ResponseModel> Sharefolders(List<FilePermissionDTOs> filePermissions)
+        {
+            try
+            {
+                await _fileService.ShareFile(filePermissions);
+
+                var response = new ResponseModel
+                {
+                    statusCode = 201,
+                    message = "Bạn chia sẻ file thành công."
+                };
+                return response;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 403,
+                    message = "Bạn Không có quyền thực hiện hành động này."
+                };
+                return errorResponse;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 500,
+                    message = ex.Message
+                };
+                return errorResponse;
+            }
+        }
+        [HttpGet("Search")]
+        public async Task<ResponseModel> SearchFile(string searchTerm)
+        {
+            try
+            {
+                var result = await _fileService.SearchFile(searchTerm);
+
+                var response = new ResponseModel
+                {
+                    statusCode = 200,
+                    message = "Thành công.",
+                    data = result   
+                };
+
+                return response;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 403,
+                    message = "Bạn không có quyền thực hiện hành động này."
+                };
+                return errorResponse;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 500,
+                    message = ex.Message
+                };
+                return errorResponse;
+            }
+        }
+
     }
 }

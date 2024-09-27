@@ -13,9 +13,10 @@ namespace DocumentManagement.Application.Interfaces
     public interface IFileService
     {
         Task <List<File_DTOs>> GetAllFile(int foldersId);
-        Task AddFile(File_DTOs fileDto, IFormFile file);
+        Task AddFiles(File_DTOs fileDto, List<IFormFile> file);
         Task UpdateFile(string newName, int id, int currentUserId);
         Task DeleteFile(int id, int currentUserId);
-        Task <File_DTOs> SearchFile(string searchTerm);
+        Task<List<File_DTOs>> SearchFile(string searchTerm);
+        Task ShareFile(List<FilePermissionDTOs> filePermissions);
     }
 }
