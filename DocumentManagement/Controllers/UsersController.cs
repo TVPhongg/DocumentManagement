@@ -4,6 +4,7 @@ using DocumentManagement.Application.Services;
 using DocumentManagement.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing.Printing;
 
 namespace DocumentManagement.Controllers
 {
@@ -19,14 +20,29 @@ namespace DocumentManagement.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserDto registerUserDto)
+        public async Task<ResponseModel> Register([FromBody] RegisterUserDto registerUserDto)
         {
-            var result = await _userService.RegisterUserAsync(registerUserDto);
-            if (!result)
+            try
             {
-                return BadRequest("Email đã tồn tại.");
+                var result = await _userService.RegisterUserAsync(registerUserDto);
+
+                var response = new ResponseModel
+                {
+                    statusCode = 201,
+                    message = "Đăng k thành công",
+                    data = result
+                };
+                return response;
             }
-            return Ok("Đăng ký thành công.");
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 403,
+                    message = "Đăng nhập thất bại"
+                };
+                return errorResponse;
+            }
         }
 
         [HttpPost("login")]
@@ -57,39 +73,49 @@ namespace DocumentManagement.Controllers
         }
 
 
-        [HttpDelete]
-        public async Task<ResponseModel> DeleteUser(int Id)
+        [HttpDelete("{id}")]
+        public async Task<ResponseModel> DeleteUser(int id)
         {
             try
             {
-                var user = await _userService.DeleteUser(Id);
+                var userDeleted = await _userService.DeleteUser(id);
 
-                var response = new ResponseModel
+                if (!userDeleted)
                 {
-                    statusCode = 200,
-                    message = "Xóa người dùng thành công",
-                    data = user
+                    return new ResponseModel
+                    {
+                        statusCode = 404,
+                        message = "Người dùng không tồn tại"
+                    };
+                }
+
+                return new ResponseModel
+                {
+                    statusCode = 204,
+                    message = "Xóa người dùng thành công"
                 };
-                return response;
             }
             catch (Exception ex)
             {
-                var errorResponse = new ResponseModel
+                // Ghi log lỗi nếu cần thiết
+                Console.WriteLine(ex.Message);
+
+                return new ResponseModel
                 {
-                    statusCode = 403,
+                    statusCode = 500,
                     message = "Xóa người dùng thất bại"
                 };
-                return errorResponse;
             }
         }
 
 
-        [HttpPut]
-        public async Task<ResponseModel> UpdateUser(int Id, RegisterUserDto registerUserDto)
+
+        [HttpPut("{id}")]
+        public async Task<ResponseModel> UpdateUser(int id, RegisterUserDto registerUserDto)
         {
             try
             {
-                var user = await _userService.UpdateUser(Id, registerUserDto);
+                var user = await _userService.UpdateUser(id, registerUserDto);
 
                 var response = new ResponseModel
                 {
@@ -112,23 +138,56 @@ namespace DocumentManagement.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<ResponseModel> GetUserById(int id)
         {
-            var user = await _userService.GetUserByIdAsync(id);
+            try
+            {
+                var result = await _userService.GetUserByIdAsync(id);
 
-            if (user == null)
-                return NotFound();
-
-            return Ok(user);
+                var response = new ResponseModel
+                {
+                    statusCode = 200,
+                    message = "Thành công.",
+                    data = result
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 400,
+                    data = "Null",
+                };
+                return errorResponse;
+            }
         }
 
  
         [HttpGet]
-        public async Task<IActionResult> GetUsers([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 2)
+        public async Task<ResponseModel> GetUsers()
         {
-            var result = await _userService.GetUsersAsync(pageNumber, pageSize);
+            try
+            {
+                var result = await _userService.GetUsersAsync();
 
-            return Ok(result);
+                var response = new ResponseModel
+                {
+                    statusCode = 200,
+                    message = "Thành công.",
+                    data = result
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 400,
+                    data = "Null",
+                };
+                return errorResponse;
+            }
         }
 
         [HttpGet("search-by-email")]

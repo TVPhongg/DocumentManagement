@@ -114,10 +114,6 @@ namespace DocumentManagement.Application.Services
                 throw new ArgumentException("Tên luồng phê duyệt không được rỗng.");
             }
 
-            if (request.CreatedDate == default(DateTime) || request.CreatedDate > DateTime.Now)
-            {
-                throw new ArgumentException("Ngày tạo không hợp lệ.");
-            }
 
             if (request.ApprovalLevels == null || !request.ApprovalLevels.Any())
             {
@@ -138,7 +134,7 @@ namespace DocumentManagement.Application.Services
             }
             // Cập nhật thông tin của luồng phê duyệt
             existingApprovalFlow.Name = request.Name;
-            existingApprovalFlow.CreatedDate = request.CreatedDate;
+            existingApprovalFlow.CreatedDate = DateTime.Now;
 
             // Xử lý các bước phê duyệt (ApprovalLevels)
             // chuyển cac bước phê duyệt hiện tại thành dạng list

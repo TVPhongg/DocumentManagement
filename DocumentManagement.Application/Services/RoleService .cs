@@ -1,4 +1,5 @@
-﻿using DocumentManagement.Application.Interfaces;
+﻿using DocumentManagement.Application.DTOs;
+using DocumentManagement.Application.Interfaces;
 using DocumentManagement.Domain.Context;
 using DocumentManagement.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -18,31 +19,61 @@ namespace DocumentManagement.Application.Services
             _dbContext = dbContext;  
         }
 
-        public async Task<IEnumerable<Roles>> GetRolesAsync()
+        public async Task<IEnumerable<Role_Dtos>> GetRolesAsync()
         {
-            return await _dbContext.Role.ToListAsync();
+            var roles = await _dbContext.Role.ToListAsync();
+            return roles.Select(role => new Role_Dtos
+            {
+                Id = role.Id,
+                RoleName = role.RoleName,
+                Description = role.Description,
+            }).ToList(); // Chuyển đổi thành danh sách
         }
 
-        public async Task<Roles> GetRoleByIdAsync(int id)
+        public async Task<Role_Dtos> GetRoleByIdAsync(int id)
         {
-            return await _dbContext.Role.FindAsync(id);
+            var role = await _dbContext.Role.FindAsync(id);
+            if (role == null)
+            {
+                throw new KeyNotFoundException($"Role with ID {id} not found.");
+            }
+            return new Role_Dtos
+            {
+                Id = role.Id,
+                RoleName = role.RoleName,
+                Description = role.Description,
+            };
         }
-
-        public async Task<Roles> CreateRoleAsync(Roles role)
+        public async Task<Role_Dtos> CreateRoleAsync(Role_Dtos roleDto)
         {
+            if (roleDto == null)
+            {
+                throw new ArgumentNullException(nameof(roleDto), "Role cannot be null.");
+            }
+
+            // Ánh xạ từ Role_Dtos sang Roles
+            var role = new Roles
+            {
+                RoleName = roleDto.RoleName,
+                Description = roleDto.Description,
+
+            };
+
             _dbContext.Role.Add(role);
             await _dbContext.SaveChangesAsync();
-            return role;
+            return roleDto;
         }
 
-        public async Task<bool> UpdateRoleAsync(int id, Roles role)
+
+        public async Task<bool> UpdateRoleAsync(int id, Role_Dtos role)
         {
-            if (id != role.Id)
+            if (role == null || id != role.Id)
             {
                 return false;
             }
 
             _dbContext.Entry(role).State = EntityState.Modified;
+
             try
             {
                 await _dbContext.SaveChangesAsync();
@@ -53,10 +84,7 @@ namespace DocumentManagement.Application.Services
                 {
                     return false;
                 }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return true;
@@ -72,7 +100,6 @@ namespace DocumentManagement.Application.Services
 
             _dbContext.Role.Remove(role);
             await _dbContext.SaveChangesAsync();
-
             return true;
         }
 

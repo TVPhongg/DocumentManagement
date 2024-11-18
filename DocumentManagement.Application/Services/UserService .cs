@@ -16,6 +16,7 @@ using DocumentManagement.Application.DTOs;
 using System.Security.Principal;
 using DocumentManagement.Domain.Entities;
 using System.Data;
+using System.Drawing.Printing;
 
 namespace DocumentManagement.Application.Services
 {
@@ -126,6 +127,7 @@ namespace DocumentManagement.Application.Services
             return loginDTO;
         }
 
+
         /// <summary>
         /// Xóa người dùng
         /// </summary>
@@ -204,46 +206,6 @@ namespace DocumentManagement.Application.Services
             };
         }
 
-
-        /// <summary>
-        /// Phân trang danh sách người dùng
-        /// </summary>
-        /// <param name="pageNumber">Số trang cần lấy danh sách</param>
-        /// <param name="pageSize">Số record hay data cần lấy trong mỗi pageNumber</param>
-        /// <returns>true: trả về danh sách người dùng thành công
-        ///          false: trả về danh sách người dùng thất bại
-        /// </returns>
-        public async Task<PagedResult<UserDto>> GetUsersAsync(int pageNumber, int pageSize)
-        {
-            var query = _dbContext.User
-           .Include(u => u.Role)
-           .Include(u => u.Department);
-
-            var totalCount = await query.CountAsync();
-
-            var users = await query
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(user => new UserDto
-                {
-                    Id = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Address = user.Address,
-                    Email = user.Email,
-                    Gender = user.Gender,
-                    RoleName = user.Role.RoleName,
-                    DepartmentName = user.Department.Name
-                })
-                .ToListAsync();
-
-            return new PagedResult<UserDto>
-            {
-                TotalCount = totalCount,
-                Items = users
-            };
-        }
-
         /// <summary>
         /// Tìm kiếm người dùng theo email
         /// </summary>
@@ -272,6 +234,27 @@ namespace DocumentManagement.Application.Services
             return users;
         }
 
+        public async Task<List<UserDto>> GetUsersAsync()
+        {
+            var query = _dbContext.User
+                .Include(u => u.Role)
+                .Include(u => u.Department);
 
+            // Lấy danh sách người dùng
+            var users = await query
+                .Select(user => new UserDto
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Address = user.Address,
+                    Email = user.Email,
+                    Gender = user.Gender,
+                    RoleName = user.Role.RoleName,
+                    DepartmentName = user.Department.Name
+                })
+                .ToListAsync();
+            return users;
+        }
     }
 }

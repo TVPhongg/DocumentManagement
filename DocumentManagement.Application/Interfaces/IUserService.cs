@@ -15,7 +15,7 @@ namespace DocumentManagement.Application.Interfaces
         Task<bool> DeleteUser(int Id);
         Task<bool> UpdateUser(int Id, RegisterUserDto userDto);
         Task<UserDto> GetUserByIdAsync(int id);
-        Task<PagedResult<UserDto>> GetUsersAsync(int pageNumber, int pageSize);
+        Task<List<UserDto>> GetUsersAsync();
         Task<IEnumerable<UserDto>> SearchUsersByEmailAsync(string emailSearchTerm);
 
 

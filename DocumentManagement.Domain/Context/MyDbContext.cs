@@ -27,6 +27,8 @@ namespace DocumentManagement.Domain.Context
         public DbSet<RolePermission> RolePermission { get; set; }
         public DbSet<Folders> Folder { get; set; }
         public DbSet<Files> File { get; set; }
+        public DbSet<Tasks> Task { get; set; }
+        //public DbSet<TaskUpdates> TaskUpdate { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
          {
@@ -82,7 +84,24 @@ namespace DocumentManagement.Domain.Context
                 .WithMany(d => d.Users)
                 .HasForeignKey(u => u.DepartmentId)
                 .OnDelete(DeleteBehavior.Cascade);
-        }
 
+            //modelBuilder.Entity<TaskUpdates>()
+            //    .HasOne(r => r.User)
+            //    .WithMany(al => al.TaskUpdates)
+            //    .HasForeignKey(r => r.UpdateBy)
+            //    .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Tasks>()
+                .HasOne(r => r.User)
+                .WithMany(al => al.Tasks)
+                .HasForeignKey(r => r.AssignedTo)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //modelBuilder.Entity<TaskUpdates>()
+            //    .HasOne(r => r.task)
+            //    .WithMany(al => al.TaskUpdates)
+            //    .HasForeignKey(r => r.TaskId)
+            //    .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

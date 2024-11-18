@@ -16,9 +16,12 @@ namespace DocumentManagement.Application.Services
     public class RequestService : IRequestService
     {
         private readonly MyDbContext _context;
-        public RequestService(MyDbContext context)
+        private readonly EmailService _emailService;
+
+        public RequestService(MyDbContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
 
         }
 
@@ -74,7 +77,9 @@ namespace DocumentManagement.Application.Services
                             Step = level.Step,
                             UserId = approver.Id,
                             NameUser = approver.FirstName + " " + approver.LastName,
-                            RoleName = level.Role.RoleName
+                            RoleName = level.Role.RoleName,
+                            
+                             
                         });
                     }
                 }
@@ -101,30 +106,32 @@ namespace DocumentManagement.Application.Services
             return approvers;
         }
 
-        public async Task Add_Request(Request_DTO request)
+        public async Task Add_Request(Request_DTO request, IFormFile file, int userId)
         {
-           
-
             var approvalFlow = await _context.ApprovalFlow
                 .Include(af => af.ApprovalLevels)
                 .FirstOrDefaultAsync(af => af.Id == request.FlowId);
 
-            //Lấy đường dẫn của thư mục hiện tại nơi ứng dụng đang chạy kết hợp với tên thư mục "Upload".
-            var uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "Upload");
-
-            // Tạo đường dẫn đầy đủ cho tệp tải lên bằng cách kết hợp đường dẫn thư mục upload và tên tệp
-            var filePath = Path.Combine(uploadDir, Path.GetFileName(request.File.FileName));
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            if (approvalFlow == null)
             {
-                await request.File.CopyToAsync(stream);
+                throw new ArgumentException("Luồng phê duyệt không tồn tại.");
             }
 
+            string fileExtension = Path.GetExtension(file.FileName);
+            string fileName = $"{DateTime.Now:yyyyMMddssffff}{fileExtension}";
+            string filePath = Path.Combine(@"E:\DocumentManagement\DocumentManagement\File", fileName);
+
+            // Lưu file vào hệ thống
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
             var requestDocument = new RequestDocument
             {
                 Title = request.Title,
-                CreatedDate = DateTime.UtcNow.Date,
+                CreatedDate = DateTime.Now,
                 File = filePath,
-                UserId = request.UserId,
+                UserId = userId,
                 FlowId = request.FlowId,
                 ApprovalSteps = new List<ApprovalSteps>()
             };
@@ -136,74 +143,89 @@ namespace DocumentManagement.Application.Services
             var approvalSteps = approvalFlow.ApprovalLevels.Select(lv => new ApprovalSteps
             {
                 Step = lv.Step,
-                RequestId = requestDocument.Id, // Thiết lập RequestId
+                RequestId = requestDocument.Id,
                 UserId = 0,
                 Status = 0,
-                UpdateTime = DateTime.MinValue,
+                UpdateTime = DateTime.Now,
                 Comment = ""
             }).ToList();
 
-            // Cập nhật UserId cho các ApprovalSteps sử dụng hàm Get_Approvers
+            // Lấy danh sách người phê duyệt
             var approvers = await Get_Approvers(request.FlowId, request.UserId);
             ApprovalSteps firstStep = null;
+            string firstApproverEmail = null;
+
+            // Cập nhật UserId cho các bước phê duyệt
             foreach (var step in approvalSteps)
             {
                 var approver = approvers.FirstOrDefault(a => a.Step == step.Step);
                 if (approver != null)
                 {
+                    step.UserId = approver.UserId;
 
-                    step.UserId = approver.UserId; // Cập nhật UserId từ hàm Get_Approvers
-                }
-                 if (step.Step == 1)
-                {
-                    step.Status = 1; // Cập nhật Step 1 trạng thái thành 1(Active)
-                    firstStep = step; // lưu vào biến firstStep 
+                    var user = await _context.User.FirstOrDefaultAsync(u => u.Id == approver.UserId);
+                    if (user != null)
+                    {
+                        // Xác định người phê duyệt đầu tiên
+                        if (firstStep == null && step.Step == 1)
+                        {
+                            step.Status = 1; // Đặt trạng thái cho bước đầu tiên
+                            firstStep = step; // Lưu vào biến firstStep
+                            firstApproverEmail = user.Email; // Lưu email của người phê duyệt đầu tiên
+                        }
+                    }
                 }
             }
 
-            // Thêm ApprovalSteps vào cơ sở dữ liệu
+            // Thêm các bước phê duyệt vào cơ sở dữ liệu
             _context.ApprovalStep.AddRange(approvalSteps);
             await _context.SaveChangesAsync();
-            // Gửi mail cho người phê duyệt đầu tiên 
-         /*   if (firstStep != null && firstStep.UserId != 0)
+
+            // Gửi email cho người phê duyệt đầu tiên
+            if (!string.IsNullOrEmpty(firstApproverEmail))
             {
-                var firstApprover = await _context.Users.FindAsync(firstStep.UserId);
-                if (firstApprover != null)
+                await _emailService.SendEmail(new SendEmailDTOs
                 {
-                    var emailService = HttpContext.RequestServices.GetRequiredService<EmailService>();
-                    await emailService.SendEmailAsync(firstApprover.Email, "New Document Approval Request", "You have a new document to approve.");
-                }
-            }*/
-
-
+                    ToEmail = firstApproverEmail,
+                    Subject = "Xác nhận yêu cầu phê duyệt",
+                    Body = "Bạn có một yêu cầu phê duyệt mới. Vui lòng kiểm tra ứng dụng để biết thêm chi tiết."
+                });
+            }
         }
 
-        public async Task<IEnumerable<Request_DTO>> Get_RequestDocument(int pageNumber , int pageSize)
+
+        public async Task<IEnumerable<Request_DTO>> Get_RequestDocument(int userId)
         {
-            var Requestes = await _context.Request
-                     .Include(st => st.ApprovalSteps)
-                     .OrderBy(r => r.Id)
-                     .Skip((pageNumber - 1)*pageSize)
-                     .Take(pageSize)
-                     .Select(rq => new Request_DTO
-                     {
-                         Id = rq.Id,
-                         Title = rq.Title,
-                         CreatedDate = rq.CreatedDate,
-                         Files = rq.File,
-                         FlowId = rq.FlowId,
-                         UserId = rq.UserId,
-                         ApprovalSteps = rq.ApprovalSteps.Select(st => new Step_DTO
-                         {
+            var requests = await _context.Request
+                .Include(rq => rq.ApprovalSteps)
+                    .ThenInclude(st => st.User)
+                .Where(rq => rq.UserId == userId ||
+                             rq.ApprovalSteps.Any(st => st.UserId == userId && st.Status == 1)) // Kiểm tra userId trong cả bảng Request và ApprovalSteps
+                .Select(rq => new Request_DTO
+                {
+                    Id = rq.Id,
+                    Title = rq.Title,
+                    CreatedDate = rq.CreatedDate,
+                    Files = rq.File,
+                    FlowId = rq.FlowId,
+                    UserId = rq.UserId,
+                    ApprovalSteps = rq.ApprovalSteps
+                        .Where(st => st.Status == 1) 
+                        .Select(st => new Step_DTO
+                        {
+                            Id = st.Id,
                             Step = st.Step,
                             UserId = st.UserId,
+                            UserName = $"{st.User.FirstName} {st.User.LastName}",
                             Status = st.Status,
                             UpdateTime = st.UpdateTime,
-                            Comment= st.Comment
-                         }).ToList()
-                     }).ToListAsync();
-            return Requestes;
+                            Comment = st.Comment
+                        }).ToList()
+                }).ToListAsync();
+
+            return requests;
         }
+
 
         public async Task Delete_Request(int id)
         {
@@ -248,45 +270,84 @@ namespace DocumentManagement.Application.Services
             return Requestes;
         }
 
-        public async Task Approval_Request(ApprovalAction_DTO action)
+        public async Task Approval_Request(ApprovalAction_DTO action, int userId, int RequestId)
         {
-            // Tìm bước hiện tại cần phê duyệt (có Status là 1 - Active)
+            // Tìm bước hiện tại cần phê duyệt
             var approvalStep = await _context.ApprovalStep
-                .FirstOrDefaultAsync(st => st.RequestId == action.RequestId && st.Status == 1);
+                .FirstOrDefaultAsync(st => st.RequestId == RequestId && st.Status == 1 && st.UserId == userId);
 
             if (approvalStep == null)
             {
                 throw new ArgumentException("approvalStep không tồn tại");
             }
 
-            approvalStep.Status = 2; // Đã đồng ý phê duyệt
+            // Cập nhật trạng thái phê duyệt
+            approvalStep.Status = 2; 
             approvalStep.Comment = action.Comment;
-            approvalStep.UpdateTime = DateTime.UtcNow.Date;
+            approvalStep.UpdateTime = DateTime.Now;
 
             _context.ApprovalStep.Update(approvalStep);
             await _context.SaveChangesAsync();
 
             // Tìm bước phê duyệt tiếp theo
             var nextStep = await _context.ApprovalStep
-                .FirstOrDefaultAsync(st => st.RequestId == action.RequestId && st.Step == approvalStep.Step + 1);
+                .FirstOrDefaultAsync(st => st.RequestId == RequestId && st.Step == approvalStep.Step + 1);
 
             if (nextStep != null)
             {
-                nextStep.Status = 1; // Cập nhật trạng thái của bước tiếp theo thành Active
+                nextStep.Status = 1; 
                 await _context.SaveChangesAsync();
+                var user = await _context.User.FirstOrDefaultAsync(u => u.Id == nextStep.UserId);
+                if (user != null)
+                {
+                    // Gửi email thông báo
+                    await _emailService.SendEmail(new SendEmailDTOs
+                    {
+                        ToEmail = user.Email,
+                        Subject = "Xác nhận yêu cầu phê duyệt",
+                        Body = "Bạn có một yêu cầu phê duyệt mới. Vui lòng kiểm tra ứng dụng để biết thêm chi tiết."
+                    });
+                }
+            }
+            else
+            {
+                // Nếu không còn bước nào nữa, kiểm tra xem tất cả các bước đã được phê duyệt chưa
+                var allApproved = await _context.ApprovalStep
+                    .Where(st => st.RequestId == RequestId)
+                    .AllAsync(st => st.Status == 2); // Kiểm tra tất cả bước đã được phê duyệt
 
-                // Gửi email cho người phê duyệt tiếp theo
-            
+                if (allApproved)
+                {
+                    // Lấy thông tin người gửi yêu cầu
+                    var request = await _context.Request
+                        .FirstOrDefaultAsync(r => r.Id == RequestId);
+
+                    if (request != null)
+                    {
+                        // Gửi email thông báo cho người đã gửi yêu cầu
+                        var requester = await _context.User.FirstOrDefaultAsync(u => u.Id == request.UserId);
+                        if (requester != null)
+                        {
+                            await _emailService.SendEmail(new SendEmailDTOs
+                            {
+                                ToEmail = requester.Email,
+                                Subject = "Yêu cầu phê duyệt đã được xử lý",
+                                Body = "Yêu cầu phê duyệt của bạn đã được chấp thuận. Vui lòng kiểm tra ứng dụng để biết thêm chi tiết."
+                            });
+                        }
+                    }
+                }
             }
         }
 
-        public async Task Reject_Request(ApprovalAction_DTO action)
+
+        public async Task Reject_Request(ApprovalAction_DTO action,int userId, int RequestId)
         {
             // Tìm bước hiện tại cần phê duyệt (có Status là 1 - Active)
             var approvalStep = await _context.ApprovalStep
            .Include(st => st.request)
            .ThenInclude(rd => rd.User)
-           .FirstOrDefaultAsync(st => st.RequestId == action.RequestId && st.Status == 1);
+           .FirstOrDefaultAsync(st => st.RequestId == RequestId && st.Status == 1 && st.UserId == userId);
 
             if (approvalStep == null)
             {
@@ -295,14 +356,23 @@ namespace DocumentManagement.Application.Services
 
             approvalStep.Status = 3; // Đã từ chối phê duyệt
             approvalStep.Comment = action.Comment;
-            approvalStep.UpdateTime = DateTime.UtcNow.Date;
+            approvalStep.UpdateTime =DateTime.Now;
 
             _context.ApprovalStep.Update(approvalStep);
             await _context.SaveChangesAsync();
 
             // Lấy email của người gửi yêu cầu
             var userEmail = approvalStep.request.User.Email;
-            // Gửi email thông báo
+            if (userEmail != null)
+            {
+                // Gửi email thông báo
+                await _emailService.SendEmail(new SendEmailDTOs
+                {
+                    ToEmail = userEmail,
+                    Subject = "Xác nhận yêu cầu phê duyệt",
+                    Body = "Yêu cầu phê duyệt của bạn không được chấp thuận. Vui lòng kiểm tra ứng dụng để biết thêm chi tiết."
+                });
+            }
 
         }
     }

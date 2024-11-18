@@ -1,4 +1,5 @@
-﻿using DocumentManagement.Domain.Entities;
+﻿using DocumentManagement.Application.DTOs;
+using DocumentManagement.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace DocumentManagement.Application.Interfaces
 {
     public interface IRoleService
     {
-        Task<IEnumerable<Roles>> GetRolesAsync();
-        Task<Roles> GetRoleByIdAsync(int id);
-        Task<Roles> CreateRoleAsync(Roles role);
-        Task<bool> UpdateRoleAsync(int id, Roles role);
+        Task<IEnumerable<Role_Dtos>> GetRolesAsync();
+        Task<Role_Dtos> GetRoleByIdAsync(int id);
+        Task<Role_Dtos> CreateRoleAsync(Role_Dtos role);
+        Task<bool> UpdateRoleAsync(int id, Role_Dtos role);
         Task<bool> DeleteRoleAsync(int id);
     }
 }

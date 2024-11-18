@@ -1,7 +1,10 @@
-﻿using DocumentManagement.Application.Interfaces;
+﻿using DocumentManagement.Application.DTOs;
+using DocumentManagement.Application.Interfaces;
+using DocumentManagement.Application.Services;
 using DocumentManagement.Domain.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 
 namespace DocumentManagement.Controllers
 {
@@ -18,58 +21,138 @@ namespace DocumentManagement.Controllers
 
         // GET: api/Roles
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Roles>>> GetRoles()
-        {
-            var roles = await _roleService.GetRolesAsync();
-            return Ok(roles);
+        public async Task<ResponseModel> GetRoles()
+        {          
+            try
+            {
+                var roles = await _roleService.GetRolesAsync();
+
+                var response = new ResponseModel
+                {
+                    statusCode = 200,
+                    message = "Thành công.",
+                    data = roles
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 400,
+                    data = "Null",
+                };
+                return errorResponse;
+            }
         }
 
         // GET: api/Roles/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Roles>> GetRoleId(int id)
-        {
-            var role = await _roleService.GetRoleByIdAsync(id);
-
-            if (role == null)
+        public async Task<ResponseModel> GetRoleId(int id)
+        {         
+            try
             {
-                return NotFound();
-            }
+                var role = await _roleService.GetRoleByIdAsync(id);
 
-            return Ok(role);
+                var response = new ResponseModel
+                {
+                    statusCode = 200,
+                    message = "Thành công.",
+                    data=role
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 400,
+                    message = " Không thành công.",
+                    data = "Null"
+                };
+                return errorResponse;
+            }
         }
 
         // POST: api/Roles
         [HttpPost]
-        public async Task<ActionResult<Roles>> CreateRole(Roles role)
+        public async Task<ResponseModel> CreateRole(Role_Dtos role)
         {
-            var createdRole = await _roleService.CreateRoleAsync(role);
-            return CreatedAtAction(nameof(GetRoleId), new { id = createdRole.Id }, createdRole);
+          
+            try
+            {
+                var createdRole = await _roleService.CreateRoleAsync(role);
+
+                var response = new ResponseModel
+                {
+                    statusCode = 201,
+                    message = "Thành công.",
+                    data = createdRole
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 400,
+                    message = " Không thành công.",
+                    data = "Null"
+                };
+                return errorResponse;
+            }
         }
 
         // PUT: api/Roles/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRole(int id, Roles role)
-        {
-            var updated = await _roleService.UpdateRoleAsync(id, role);
-            if (!updated)
+        public async Task<ResponseModel> UpdateRole(int id, Role_Dtos role)
+        {        
+            try
             {
-                return BadRequest();
-            }
+                var updated = await _roleService.UpdateRoleAsync(id, role);
 
-            return NoContent();
+                var response = new ResponseModel
+                {
+                    statusCode = 204,
+                    message = "Thành công.",
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 400,
+                    message = " Không thành công.",
+                };
+                return errorResponse;
+            };
         }
 
         // DELETE: api/Roles/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRole(int id)
-        {
-            var deleted = await _roleService.DeleteRoleAsync(id);
-            if (!deleted)
+        public async Task<ResponseModel> DeleteRole(int id)
+        {         
+            try
             {
-                return NotFound();
-            }
+                var deleted = await _roleService.DeleteRoleAsync(id);
 
-            return NoContent();
+                var response = new ResponseModel
+                {
+                    statusCode = 204,
+                    message = "Thành công.",
+                };
+                return response;
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = new ResponseModel
+                {
+                    statusCode = 400,
+                    message = " Không thành công.",
+                };
+                return errorResponse;
+            }
         }
     }
 }

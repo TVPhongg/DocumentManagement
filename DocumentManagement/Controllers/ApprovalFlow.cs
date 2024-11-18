@@ -30,7 +30,7 @@ namespace DocumentManagement.Controllers
 
                 var response = new ResponseModel
                 {
-                    statusCode = 200,
+                    statusCode = 201,
                     message = "Thành công.",
 
                 };
@@ -57,7 +57,7 @@ namespace DocumentManagement.Controllers
                 var response = new ResponseModel
                 {
                     statusCode = 200,
-
+                    message = "Thành công.",
                     data = resualt
                 };
                 return response;
@@ -83,6 +83,7 @@ namespace DocumentManagement.Controllers
                 var response = new ResponseModel
                 {
                     statusCode = 200,
+                    message = "Thành công.",
                     data = resualt
                 };
                 return response;
@@ -98,7 +99,7 @@ namespace DocumentManagement.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<ResponseModel> UpdateFlow(int id, ApprovalFlow_DTO request)
         {
             try
@@ -107,7 +108,7 @@ namespace DocumentManagement.Controllers
 
                 var response = new ResponseModel
                 {
-                    statusCode = 201,
+                    statusCode = 204,
                     message = "Cập nhập thành công."
                 };
                 return response;
@@ -122,7 +123,7 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<ResponseModel> DeleteFlow(int id)
         {
             try
@@ -131,7 +132,7 @@ namespace DocumentManagement.Controllers
 
                 var response = new ResponseModel
                 {
-                    statusCode = 201,
+                    statusCode = 204,
                     message = "Xóa thành công."
                 };
                 return response;

@@ -18,6 +18,7 @@ namespace DocumentManagement.Application.DTOs
         public IFormFile File { get; set; }
         public int FlowId { get; set; }
         public int UserId { get; set; }
+        public int status { get; set; }
         public List<Step_DTO> ApprovalSteps { get; set; }
 
     }

@@ -2,8 +2,10 @@
 using DocumentManagement.Application.DTOs;
 using DocumentManagement.Application.Interfaces;
 using DocumentManagement.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace DocumentManagement.Controllers
 {
@@ -22,13 +24,13 @@ namespace DocumentManagement.Controllers
         {
             try
             {
-                var resualt = await _Request.Get_Approvers(FlowId, UserId);
+                var result = await _Request.Get_Approvers(FlowId, UserId);
 
                 var response = new ResponseModel
                 {
                     statusCode = 200,
                     message = "Thành công.",
-                    data = resualt,
+                    data = result,
                 };
                 return response;
             }
@@ -43,61 +45,103 @@ namespace DocumentManagement.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
-        public async Task<ResponseModel> AddRequest(Request_DTO request)
+        public async Task<IActionResult> AddRequest([FromForm] Request_DTO request)
         {
+            // Lấy UserId từ claims
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null)
+            {
+                return Unauthorized(new ResponseModel
+                {
+                    statusCode = 401,
+                    message = "Người dùng không hợp lệ."
+                });
+            }
+
+            // Chuyển đổi userId thành kiểu int
+            if (!int.TryParse(userIdClaim.Value, out int userIdInt))
+            {
+                return Unauthorized(new ResponseModel
+                {
+                    statusCode = 401,
+                    message = "Người dùng không hợp lệ."
+                });
+            }
+
             try
             {
-                await _Request.Add_Request(request);
+                // Gọi phương thức Add_Request và truyền userId
+                await _Request.Add_Request(request, request.File, userIdInt);
 
                 var response = new ResponseModel
                 {
-                    statusCode = 200,
+                    statusCode = 201,
                     message = "Thành công.",
-
                 };
-                return response;
+                return CreatedAtAction(nameof(AddRequest), response);
             }
             catch (Exception ex)
             {
                 var errorResponse = new ResponseModel
                 {
-                    statusCode = 400,
-                    message = "Bạn thêm luồng phê duyệt chưa thành công",
+                    statusCode = 500,
+                    message = $"Bạn thêm luồng phê duyệt chưa thành công: {ex.Message}",
                 };
-                return errorResponse;
+                return StatusCode(500, errorResponse);
             }
         }
 
+        [Authorize]
         [HttpGet]
-        public async Task<ResponseModel> GetRequest(int pageNumber , int pageSize)
+        public async Task<ResponseModel> GetRequest()
         {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null)
+            {
+                return new ResponseModel
+                {
+                    statusCode = 401,
+                    message = "Người dùng không hợp lệ."
+                };
+            }
+
+            // Chuyển đổi userId thành kiểu int
+            if (!int.TryParse(userIdClaim.Value, out int userIdInt))
+            {
+                return new ResponseModel
+                {
+                    statusCode = 401,
+                    message = "Người dùng không hợp lệ."
+                };
+            }
+
             try
             {
-                var resualt = await _Request.Get_RequestDocument(pageNumber, pageSize);
+                var result = await _Request.Get_RequestDocument(userIdInt);
 
-                var response = new ResponseModel
+                return new ResponseModel
                 {
                     statusCode = 200,
                     message = "Thành công.",
-                    data = resualt,
-
+                    data = result
                 };
-                return response;
             }
             catch (Exception ex)
             {
-                var errorResponse = new ResponseModel
+                return new ResponseModel
                 {
                     statusCode = 400,
                     message = ex.Message,
-                    data = "Null",
+                    data = "Null"
                 };
-                return errorResponse;
             }
         }
 
-        [HttpDelete("{id}")]
+
+
+    [HttpDelete("{id}")]
         public async Task<ResponseModel> DeleteRequest(int id)
         {
             try
@@ -150,17 +194,40 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpPut("{id}/Approval")]
-        public async Task<ResponseModel> Approval_Request(ApprovalAction_DTO action)
+
+        [Authorize]
+        [HttpPut("{requestId}/Approval")]
+        public async Task<ResponseModel> Approval_Request(ApprovalAction_DTO action, int requestId)
         {
-              try
+
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null)
             {
-                await _Request.Approval_Request(action);
+                return new ResponseModel
+                {
+                    statusCode = 401,
+                    message = "Người dùng không hợp lệ."
+                };
+            }
+
+
+            if (!int.TryParse(userIdClaim.Value, out int userIdInt))
+            {
+                return new ResponseModel
+                {
+                    statusCode = 401,
+                    message = "Người dùng không hợp lệ."
+                };
+            }
+
+            try
+            {
+                await _Request.Approval_Request(action, userIdInt, requestId);
 
                 var response = new ResponseModel
                 {
-                    statusCode = 200,
-                    message = "Cập nhập thành công.",
+                    statusCode = 204,
+                    message = "Phê duyệt thành công.",
 
                 };
                 return response;
@@ -175,17 +242,38 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpPut("{id}/Reject")]
-        public async Task<ResponseModel> Reject_Request(ApprovalAction_DTO action)
+
+        [Authorize]
+        [HttpPut("{requestId}/Reject")]
+        public async Task<ResponseModel> Reject_Request(ApprovalAction_DTO action, int requestId)
         {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
+            if (userIdClaim == null)
+            {
+                return new ResponseModel
+                {
+                    statusCode = 401,
+                    message = "Người dùng không hợp lệ."
+                };
+            }
+
+
+            if (!int.TryParse(userIdClaim.Value, out int userIdInt))
+            {
+                return new ResponseModel
+                {
+                    statusCode = 401,
+                    message = "Người dùng không hợp lệ."
+                };
+            }
             try
             {
-                await _Request.Reject_Request(action);
+                await _Request.Reject_Request(action, userIdInt, requestId);
 
                 var response = new ResponseModel
                 {
-                    statusCode = 200,
-                    message = "Cập nhập thành công.",
+                    statusCode = 204,
+                    message = "Từ chối phê duyệt thành công.",
 
                 };
                 return response;

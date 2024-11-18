@@ -11,6 +11,6 @@ namespace DocumentManagement.Application.DTOs
         public int Step { get; set; } // Bước phê duyệt 
         public int RoleId { get; set; } //Chức phụ phê duyệt ở step này 
 
-        public string Name { get; set; }// tên role
+        public string? Name { get; set; }// tên role
     }
 }

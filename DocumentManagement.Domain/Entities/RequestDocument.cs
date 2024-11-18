@@ -21,6 +21,7 @@ namespace DocumentManagement.Domain.Entities
         public string File {  get; set; }
         public int UserId { get; set; }
         public int  FlowId { get; set; }
+        public int  status { get; set; }
         public ICollection<ApprovalSteps> ApprovalSteps { get; set;}
         public Users User { get; set; }
         public ApprovalFlows ApprovalFlow { get; set; }
