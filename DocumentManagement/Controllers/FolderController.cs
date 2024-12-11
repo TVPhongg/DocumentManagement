@@ -19,11 +19,11 @@ namespace DocumentManagement.Controllers
             _folderService = folderService;
         }
         [HttpGet]
-        public async Task<ResponseModel> GetAll(int currentUserId)
+        public async Task<ResponseModel> GetAll()
         {
             try
             {
-                var result = await _folderService.GetAllFolders(currentUserId);
+                var result = await _folderService.GetAllFolders();
 
                 var response = new ResponseModel
                 {
@@ -56,11 +56,11 @@ namespace DocumentManagement.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<ResponseModel> UpdateFolder([FromBody] string newName, int id, int currentUserId)
+        public async Task<ResponseModel> UpdateFolder([FromBody] string newName, int id)
         {
             try
             {
-                await _folderService.UpdateFolder(newName, id,currentUserId);
+                await _folderService.UpdateFolder(newName, id);
 
                 var response = new ResponseModel
                 {
@@ -150,9 +150,6 @@ namespace DocumentManagement.Controllers
             }
             catch (Exception ex)
             {
-                // Ghi log lỗi để theo dõi (tùy chọn)
-                // _logger.LogError(ex, "An unexpected error occurred.");
-
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 500,
@@ -196,38 +193,38 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpPost("Share")]
-        public async Task<ResponseModel> Sharefolders(List<FolderPermissionDTOs> folderPermission)
-        {
-            try
-            {
-                await _folderService.ShareFolder(folderPermission);
+        //[HttpPost("Share")]
+        //public async Task<ResponseModel> Sharefolders(List<FolderPermissionDTOs> folderPermission)
+        //{
+        //    try
+        //    {
+        //        await _folderService.ShareFolder(folderPermission);
 
-                var response = new ResponseModel
-                {
-                    statusCode = 201,
-                    message = "Bạn chia sẻ thư mục thành công."
-                };
-                return response;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                var errorResponse = new ResponseModel
-                {
-                    statusCode = 403,
-                    message = "Bạn Không có quyền thực hiện hành động này."
-                };
-                return errorResponse;
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = new ResponseModel
-                {
-                    statusCode = 500,
-                    message = ex.Message
-                };
-                return errorResponse;
-            }
-        }
+        //        var response = new ResponseModel
+        //        {
+        //            statusCode = 201,
+        //            message = "Bạn chia sẻ thư mục thành công."
+        //        };
+        //        return response;
+        //    }
+        //    catch (UnauthorizedAccessException)
+        //    {
+        //        var errorResponse = new ResponseModel
+        //        {
+        //            statusCode = 403,
+        //            message = "Bạn Không có quyền thực hiện hành động này."
+        //        };
+        //        return errorResponse;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var errorResponse = new ResponseModel
+        //        {
+        //            statusCode = 500,
+        //            message = ex.Message
+        //        };
+        //        return errorResponse;
+        //    }
+        //}
     }
 }

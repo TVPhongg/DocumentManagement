@@ -22,6 +22,9 @@ namespace DocumentManagement.Application.DTOs
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+
+        public int PhoneNumber { get; set; }
+
         [Required]
         [StringLength(10)]
         public string Gender { get; set; }

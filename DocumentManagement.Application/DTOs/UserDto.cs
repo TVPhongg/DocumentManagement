@@ -13,6 +13,7 @@ namespace DocumentManagement.Application.DTOs
         public string LastName { get; set; }
         public string Address { get; set; }
         public string Email { get; set; }
+        public int PhoneNumber { get; set; }
         public string Gender { get; set; }
         public string RoleName { get; set; }
         public string DepartmentName { get; set; }

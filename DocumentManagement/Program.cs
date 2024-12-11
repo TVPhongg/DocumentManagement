@@ -48,6 +48,8 @@ public class Program
         builder.Services.AddScoped<IRoleService, RoleService>();
         builder.Services.AddScoped<IFlowService, ApprovalFlowService>();
         builder.Services.AddScoped<IRequestService, RequestService>();
+        builder.Services.AddScoped<IProjectService, ProjectService>();
+        builder.Services.AddScoped<ITaskService, TaskService>();
         builder.Services.AddSingleton<IWebHostEnvironment>(builder.Environment);
         builder.Services.AddTransient<EmailService>();
 

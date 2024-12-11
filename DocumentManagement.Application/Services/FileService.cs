@@ -17,25 +17,6 @@ namespace DocumentManagement.Application.Services
         }
         public async Task AddFiles(File_DTOs fileDto, List<IFormFile> files)
         {
-            var isFolderOwner = await _dbContext.Folder
-                                                .AnyAsync(f => f.Id == fileDto.FoldersId && f.UserId == fileDto.UserId);
-            if (!isFolderOwner)
-            {
-                var hasCreatePermission = await _dbContext.FolderPermission
-                                                          .AnyAsync(fp => fp.FolderId == fileDto.FoldersId &&
-                                                                          fp.UserId == fileDto.UserId &&
-                                                                          fp.Name == "Create");
-
-                if (!hasCreatePermission)
-                {
-                    throw new UnauthorizedAccessException();
-                }
-            }
-            if (files == null || !files.Any())
-            {
-                throw new ArgumentException("Không có file nào được tải lên.");
-            }
-            // Kiểm tra tổng dung lượng của các file
             long totalSize = files.Sum(f => f.Length);
             const long maxUploadSize = 500 * 1024 * 1024; // 500MB in bytes
             if (totalSize > maxUploadSize)
@@ -78,34 +59,13 @@ namespace DocumentManagement.Application.Services
             await _dbContext.SaveChangesAsync();
         }
 
-
-        public async Task DeleteFile(int id, int currentUserId)
+        public async Task DeleteFile(int id)
         {
             var file = await _dbContext.File.SingleOrDefaultAsync(p => p.Id == id);
-
-            bool isFolderOwner = await _dbContext.Folder
-                                                 .AnyAsync(f => f.Id == file.FoldersId && f.UserId == currentUserId);
-
-            if (!isFolderOwner)
+            if (file == null)
             {
-                bool hasCreatePermission = await _dbContext.FolderPermission
-                                                           .AnyAsync(fp => fp.FolderId == file.FoldersId &&
-                                                                           fp.UserId == currentUserId &&
-                                                                           fp.Name == "Delete");
-                if (!hasCreatePermission)
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                throw new Exception("Không tìm thấy file");
             }
-            else if (!await _dbContext.FilePermission
-                                      .AnyAsync(fp => fp.FileId == id && fp.UserId == currentUserId && fp.Name == "Delete"))
-            {
-                throw new UnauthorizedAccessException();
-            }
-
-            _dbContext.FilePermission.RemoveRange(await _dbContext.FilePermission
-                                                                 .Where(fp => fp.FileId == id)
-                                                                 .ToListAsync());
 
             _dbContext.File.Remove(file);
             await _dbContext.SaveChangesAsync();
@@ -150,66 +110,59 @@ namespace DocumentManagement.Application.Services
                 .ToListAsync();
         }
 
-        public async Task ShareFile(List<FilePermissionDTOs> filePermissions)
-        {
-            var permissionsToAdd = new List<FilePermissions>();
+        /* public async Task ShareFile(List<FilePermissionDTOs> filePermissions)
+         {
+             var permissionsToAdd = new List<FilePermissions>();
 
-            foreach (var filePermission in filePermissions)
-            {
-                // Lấy thông tin về tệp
-                var file = await _dbContext.File
-                    .SingleOrDefaultAsync(p => p.Id == filePermission.FileId);
+             foreach (var filePermission in filePermissions)
+             {
+                 // Lấy thông tin về tệp
+                 var file = await _dbContext.File
+                     .SingleOrDefaultAsync(p => p.Id == filePermission.FileId);
 
-                if (file == null)
-                {
-                    throw new ArgumentException("Tệp không tồn tại.");
-                }
+                 if (file == null)
+                 {
+                     throw new ArgumentException("Tệp không tồn tại.");
+                 }
 
-                // Kiểm tra xem quyền đã tồn tại trên file chưa
-                var permissionExists = await _dbContext.FilePermission
-                    .AnyAsync(fp => fp.FileId == filePermission.FileId
-                                    && fp.UserId == filePermission.UserId
-                                    && fp.Name == filePermission.Name);
+                 // Kiểm tra xem quyền đã tồn tại trên file chưa
+                 var permissionExists = await _dbContext.FilePermission
+                     .AnyAsync(fp => fp.FileId == filePermission.FileId
+                                     && fp.UserId == filePermission.UserId
+                                     && fp.Name == filePermission.Name);
 
-                if (!permissionExists)
-                {
-                    var newPermission = new FilePermissions
-                    {
-                        FileId = filePermission.FileId,
-                        UserId = filePermission.UserId,
-                        Name = filePermission.Name
-                    };
+                 if (!permissionExists)
+                 {
+                     var newPermission = new FilePermissions
+                     {
+                         FileId = filePermission.FileId,
+                         UserId = filePermission.UserId,
+                         Name = filePermission.Name
+                     };
 
-                    permissionsToAdd.Add(newPermission);
-                }
-            }
+                     permissionsToAdd.Add(newPermission);
+                 }
+             }
 
-            if (permissionsToAdd.Count > 0)
-            {
-                await _dbContext.FilePermission.AddRangeAsync(permissionsToAdd);
-                await _dbContext.SaveChangesAsync();
-            }
-        }
+             if (permissionsToAdd.Count > 0)
+             {
+                 await _dbContext.FilePermission.AddRangeAsync(permissionsToAdd);
+                 await _dbContext.SaveChangesAsync();
+             }
+         }*/
 
-        public async Task UpdateFile(string newName, int id, int currentUserId)
+        public async Task UpdateFile(string newName, int id)
         {
             var file = await _dbContext.File.SingleOrDefaultAsync(p => p.Id == id);
 
             if (file == null)
             {
                 throw new ArgumentException("Tệp không tồn tại.");
-            }
+            }   
+            
+            file.Name = newName;
+            await _dbContext.SaveChangesAsync();
 
-            if (file.UserId == currentUserId ||
-                await _dbContext.FilePermission.AnyAsync(fp => fp.FileId == id && fp.UserId == currentUserId && fp.Name == "Edit"))
-            {
-                file.Name = newName;
-                await _dbContext.SaveChangesAsync();
-            }
-            else
-            {
-                throw new UnauthorizedAccessException();
-            }
         }
 
     }

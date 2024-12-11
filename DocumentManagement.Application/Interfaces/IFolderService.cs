@@ -9,11 +9,11 @@ namespace DocumentManagement.Application.Interfaces
 {
     public interface IFolderService
     {
-        Task<List<Folder_DTOs>> GetAllFolders(int currentUserId);
+        Task<List<Folder_DTOs>> GetAllFolders();
         Task AddFolder(Folder_DTOs Folder);
-        Task UpdateFolder(string newName, int id, int currentUserId);
+        Task UpdateFolder(string newName, int id);
         Task DeleteFolder(int id, int currentUserId);
         Task<List<Folder_DTOs>> SearchFolder(string searchTerm);
-        Task ShareFolder(List<FolderPermissionDTOs> folderPermission);
+        //Task ShareFolder(List<FolderPermissionDTOs> folderPermission);
     }
 }

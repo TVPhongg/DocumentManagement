@@ -14,9 +14,9 @@ namespace DocumentManagement.Application.Interfaces
     {
         Task <List<File_DTOs>> GetAllFile(int foldersId);
         Task AddFiles(File_DTOs fileDto, List<IFormFile> file);
-        Task UpdateFile(string newName, int id, int currentUserId);
-        Task DeleteFile(int id, int currentUserId);
+        Task UpdateFile(string newName, int id);
+        Task DeleteFile(int id);
         Task<List<File_DTOs>> SearchFile(string searchTerm);
-        Task ShareFile(List<FilePermissionDTOs> filePermissions);
+        //Task ShareFile(List<FilePermissionDTOs> filePermissions);
     }
 }

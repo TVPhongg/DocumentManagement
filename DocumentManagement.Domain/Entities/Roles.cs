@@ -20,7 +20,6 @@ namespace DocumentManagement.Domain.Entities
         [StringLength(50)]
         public string Description { get; set; }
         public virtual ICollection<Users>? Users { get; set; }
-        public virtual ICollection<RolePermission>? RolePermissions { get; set; }
         public virtual ICollection<ApprovalLevels>? ApprovalLevels{ get; set; }
 
     }

@@ -47,7 +47,7 @@ namespace DocumentManagement.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> AddRequest([FromForm] Request_DTO request)
+        public async Task<ActionResult<ResponseModel>> AddRequest([FromForm] Request_DTO request)
         {
             // Lấy UserId từ claims
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId");
@@ -60,7 +60,6 @@ namespace DocumentManagement.Controllers
                 });
             }
 
-            // Chuyển đổi userId thành kiểu int
             if (!int.TryParse(userIdClaim.Value, out int userIdInt))
             {
                 return Unauthorized(new ResponseModel
@@ -72,26 +71,25 @@ namespace DocumentManagement.Controllers
 
             try
             {
-                // Gọi phương thức Add_Request và truyền userId
                 await _Request.Add_Request(request, request.File, userIdInt);
 
-                var response = new ResponseModel
+                return StatusCode(201, new ResponseModel
                 {
                     statusCode = 201,
-                    message = "Thành công.",
-                };
-                return CreatedAtAction(nameof(AddRequest), response);
+                    message = "Thành công."
+                });
             }
             catch (Exception ex)
             {
-                var errorResponse = new ResponseModel
+                return StatusCode(500, new ResponseModel
                 {
                     statusCode = 500,
-                    message = $"Bạn thêm luồng phê duyệt chưa thành công: {ex.Message}",
-                };
-                return StatusCode(500, errorResponse);
+                    message = $"Bạn thêm luồng phê duyệt chưa thành công: {ex.Message}"
+                });
             }
         }
+
+
 
         [Authorize]
         [HttpGet]
@@ -139,8 +137,6 @@ namespace DocumentManagement.Controllers
             }
         }
 
-
-
     [HttpDelete("{id}")]
         public async Task<ResponseModel> DeleteRequest(int id)
         {
@@ -150,7 +146,7 @@ namespace DocumentManagement.Controllers
 
                 var response = new ResponseModel
                 {
-                    statusCode = 200,
+                    statusCode = 204,
                     message = "Xóa Thành công.",
 
                 };

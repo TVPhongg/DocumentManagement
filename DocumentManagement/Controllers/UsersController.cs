@@ -29,7 +29,7 @@ namespace DocumentManagement.Controllers
                 var response = new ResponseModel
                 {
                     statusCode = 201,
-                    message = "Đăng k thành công",
+                    message = "Đăng kí thành công",
                     data = result
                 };
                 return response;
@@ -39,7 +39,7 @@ namespace DocumentManagement.Controllers
                 var errorResponse = new ResponseModel
                 {
                     statusCode = 403,
-                    message = "Đăng nhập thất bại"
+                    message = "Đăng kí thất bại"
                 };
                 return errorResponse;
             }

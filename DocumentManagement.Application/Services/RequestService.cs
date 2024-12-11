@@ -40,71 +40,35 @@ namespace DocumentManagement.Application.Services
                 .Include(level => level.Role)
                 .OrderBy(level => level.Step)
                 .ToListAsync();
-            // Tạo danh sách để chứa thông tin những người phê duyệt
+
             var approvers = new List<Approver_DTO>();
-            // Duyệt qua từng bước phê duyệt trong luồng
+
+            // Xử lý từng bước phê duyệt
             foreach (var level in approvalLevels)
             {
-                if (level.Role.RoleName == "GD")
+                var users = level.Role.RoleName switch
                 {
-                    // Lấy tất cả người dùng có vai trò "GD" không quan tâm đến DepartmentId
-                    var users = await _context.User
-                        .Where(u => u.RoleId == level.RoleId)
-                        .ToListAsync();
+                    "GD" => await _context.User.Where(u => u.RoleId == level.RoleId).ToListAsync(),
+                    "KT" => await _context.User.Where(u => u.RoleId == level.RoleId).ToListAsync(),
+                    "BA" => await _context.User.Where(u => u.RoleId == level.RoleId && u.DepartmentId == userDepartmentId).ToListAsync(),
+                    "Dev" => await _context.User.Where(u => u.RoleId == level.RoleId && u.DepartmentId == userDepartmentId).ToListAsync(),
+                    "Tester" => await _context.User.Where(u => u.RoleId == level.RoleId).ToListAsync(),
+                    "QL" => await _context.User.Where(u => u.RoleId == level.RoleId && u.DepartmentId == userDepartmentId).ToListAsync(),
+                    _ => await _context.User.Where(u => u.RoleId == level.RoleId && u.DepartmentId == userDepartmentId).ToListAsync()
+                };
 
-                    foreach (var approver in users)
-                    {
-                        approvers.Add(new Approver_DTO
-                        {
-                            Step = level.Step,
-                            UserId = approver.Id,
-                            NameUser = approver.FirstName + " " + approver.LastName,
-                            RoleName = level.Role.RoleName
-                        });
-                    }
-                }
-                else if (level.Role.RoleName == "KT")
+                approvers.AddRange(users.Select(approver => new Approver_DTO
                 {
-                    // Lấy tất cả người dùng có vai trò "KT" không quan tâm đến DepartmentId
-                    var users = await _context.User
-                        .Where(u => u.RoleId == level.RoleId)
-                        .ToListAsync();
-
-                    foreach (var approver in users)
-                    {
-                        approvers.Add(new Approver_DTO
-                        {
-                            Step = level.Step,
-                            UserId = approver.Id,
-                            NameUser = approver.FirstName + " " + approver.LastName,
-                            RoleName = level.Role.RoleName,
-                            
-                             
-                        });
-                    }
-                }
-                else
-                {
-                    // Lấy tất cả người dùng có vai trò khác "GD" và có cùng DepartmentId
-                    var users = await _context.User
-                        .Where(u => u.RoleId == level.RoleId && u.DepartmentId == userDepartmentId)
-                        .ToListAsync();
-
-                    foreach (var approver in users)
-                    {
-                        approvers.Add(new Approver_DTO
-                        {
-                            Step = level.Step,
-                            UserId = approver.Id,
-                            NameUser = approver.FirstName + " " + approver.LastName,
-                            RoleName = level.Role.RoleName
-                        });
-                    }
-                }
+                    Step = level.Step,
+                    UserId = approver.Id,
+                    NameUser = $"{approver.FirstName} {approver.LastName}",
+                    RoleName = level.Role.RoleName
+                }));
             }
 
             return approvers;
         }
+
 
         public async Task Add_Request(Request_DTO request, IFormFile file, int userId)
         {
@@ -187,9 +151,25 @@ namespace DocumentManagement.Application.Services
                 await _emailService.SendEmail(new SendEmailDTOs
                 {
                     ToEmail = firstApproverEmail,
-                    Subject = "Xác nhận yêu cầu phê duyệt",
-                    Body = "Bạn có một yêu cầu phê duyệt mới. Vui lòng kiểm tra ứng dụng để biết thêm chi tiết."
+                    Subject = "Thông báo: Xác nhận yêu cầu phê duyệt",
+                    Body = $@"
+                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                        <h2 style='color: #f0ad4e;'>Thông báo: Yêu cầu phê duyệt mới</h2>
+                        <p>Chào bạn,</p>
+                        <p>Bạn có một yêu cầu phê duyệt mới. Vui lòng đăng nhập vào ứng dụng để kiểm tra chi tiết.</p>
+                        <p>
+                            <a href='https://your-application-url.com/approval-requests' 
+                                style='color: #fff; background-color: #0275d8; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>
+                                Kiểm tra yêu cầu phê duyệt
+                            </a>
+                        </p>
+                        <p>Trân trọng,</p>
+                        <p><b>Đội ngũ quản lý hệ thống</b></p>
+                        <hr style='border: none; border-top: 1px solid #ddd;' />
+                        <p style='font-size: 12px; color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>
+                    </div>"
                 });
+
             }
         }
 
@@ -200,7 +180,7 @@ namespace DocumentManagement.Application.Services
                 .Include(rq => rq.ApprovalSteps)
                     .ThenInclude(st => st.User)
                 .Where(rq => rq.UserId == userId ||
-                             rq.ApprovalSteps.Any(st => st.UserId == userId && st.Status == 1)) // Kiểm tra userId trong cả bảng Request và ApprovalSteps
+                             rq.ApprovalSteps.Any(st => st.UserId == userId)) // Kiểm tra userId trong cả bảng Request và ApprovalSteps
                 .Select(rq => new Request_DTO
                 {
                     Id = rq.Id,
@@ -209,8 +189,9 @@ namespace DocumentManagement.Application.Services
                     Files = rq.File,
                     FlowId = rq.FlowId,
                     UserId = rq.UserId,
+                    UserName = $"{rq.User.FirstName} {rq.User.LastName}",
                     ApprovalSteps = rq.ApprovalSteps
-                        .Where(st => st.Status == 1) 
+
                         .Select(st => new Step_DTO
                         {
                             Id = st.Id,
@@ -222,10 +203,18 @@ namespace DocumentManagement.Application.Services
                             Comment = st.Comment
                         }).ToList()
                 }).ToListAsync();
+            int totalRequests = requests.Count;
+            int approvedRequests = requests.Count( rq => rq.ApprovalSteps.Any(st => st.Status == 2));
+            int pendingRequests = requests.Count(rq => rq.ApprovalSteps.Any(st => st.Status == 1));
+            requests.ForEach(request =>
+            {
+                request.TotalRequests = totalRequests;
+                request.ApprovedRequests = approvedRequests;
+                request.PendingRequests = pendingRequests;
+            });
 
             return requests;
         }
-
 
         public async Task Delete_Request(int id)
         {
@@ -304,9 +293,25 @@ namespace DocumentManagement.Application.Services
                     await _emailService.SendEmail(new SendEmailDTOs
                     {
                         ToEmail = user.Email,
-                        Subject = "Xác nhận yêu cầu phê duyệt",
-                        Body = "Bạn có một yêu cầu phê duyệt mới. Vui lòng kiểm tra ứng dụng để biết thêm chi tiết."
+                        Subject = "Thông báo: Xác nhận yêu cầu phê duyệt",
+                        Body = $@"
+                        <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                            <h2 style='color: #f0ad4e;'>Thông báo: Yêu cầu phê duyệt mới</h2>
+                            <p>Chào bạn,</p>
+                            <p>Bạn có một yêu cầu phê duyệt mới. Vui lòng đăng nhập vào hệ thống để kiểm tra chi tiết:</p>
+                            <p>
+                                <a href='https://your-application-url.com/approval-requests' 
+                                    style='color: #fff; background-color: #0275d8; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>
+                                    Xem yêu cầu phê duyệt
+                                </a>
+                            </p>
+                            <p>Trân trọng,</p>
+                            <p><b>Đội ngũ quản lý hệ thống</b></p>
+                            <hr style='border: none; border-top: 1px solid #ddd;' />
+                            <p style='font-size: 12px; color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>
+                        </div>"
                     });
+
                 }
             }
             else
@@ -331,9 +336,25 @@ namespace DocumentManagement.Application.Services
                             await _emailService.SendEmail(new SendEmailDTOs
                             {
                                 ToEmail = requester.Email,
-                                Subject = "Yêu cầu phê duyệt đã được xử lý",
-                                Body = "Yêu cầu phê duyệt của bạn đã được chấp thuận. Vui lòng kiểm tra ứng dụng để biết thêm chi tiết."
+                                Subject = "Thông báo: Yêu cầu phê duyệt đã được xử lý",
+                                Body = $@"
+                                <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                                    <h2 style='color: #5cb85c;'>Yêu cầu phê duyệt đã được chấp thuận</h2>
+                                    <p>Chào bạn,</p>
+                                    <p>Yêu cầu phê duyệt của bạn đã được chấp thuận. Vui lòng đăng nhập vào hệ thống để kiểm tra chi tiết:</p>
+                                    <p>
+                                        <a href='https://your-application-url.com/approval-requests/' 
+                                           style='color: #fff; background-color: #0275d8; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>
+                                           Xem chi tiết yêu cầu
+                                        </a>
+                                    </p>
+                                    <p>Trân trọng,</p>
+                                    <p><b>Đội ngũ quản lý hệ thống</b></p>
+                                    <hr style='border: none; border-top: 1px solid #ddd;' />
+                                    <p style='font-size: 12px; color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>
+                                </div>"
                             });
+
                         }
                     }
                 }
@@ -369,9 +390,26 @@ namespace DocumentManagement.Application.Services
                 await _emailService.SendEmail(new SendEmailDTOs
                 {
                     ToEmail = userEmail,
-                    Subject = "Xác nhận yêu cầu phê duyệt",
-                    Body = "Yêu cầu phê duyệt của bạn không được chấp thuận. Vui lòng kiểm tra ứng dụng để biết thêm chi tiết."
+                    Subject = "Thông báo: Yêu cầu phê duyệt không được chấp thuận",
+                    Body = $@"
+                    <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                        <h2 style='color: #d9534f;'>Yêu cầu phê duyệt không được chấp thuận</h2>
+                        <p>Chào bạn,</p>
+                        <p>Rất tiếc, yêu cầu phê duyệt của bạn không được chấp thuận.</p>
+                        <p>Vui lòng đăng nhập vào hệ thống để kiểm tra chi tiết:</p>
+                        <p>
+                            <a href='https://your-application-url.com/approval-requests/' 
+                               style='color: #fff; background-color: #d9534f; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>
+                               Xem chi tiết yêu cầu
+                            </a>
+                        </p>
+                        <p>Trân trọng,</p>
+                        <p><b>Đội ngũ quản lý hệ thống</b></p>
+                        <hr style='border: none; border-top: 1px solid #ddd;' />
+                        <p style='font-size: 12px; color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>
+                    </div>"
                 });
+
             }
 
         }

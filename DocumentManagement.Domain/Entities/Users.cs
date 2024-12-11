@@ -29,6 +29,8 @@ namespace DocumentManagement.Domain.Entities
         [EmailAddress]
         public string Email { get; set; }
 
+        public int PhoneNumber { get; set; }
+
         [Required]
         [StringLength(10)]
         public string Gender { get; set; }
@@ -50,10 +52,6 @@ namespace DocumentManagement.Domain.Entities
         public ICollection<RequestDocument> RequestDocuments { get; set; }
 
         public ICollection<ApprovalSteps> ApprovalSteps { get; set; }
-
-        public ICollection<FolderPermissions> FolderPermissions { get; set; }
-
-        public ICollection<FilePermissions> FilePermissions { get; set; }
 
         public ICollection<Tasks> Tasks { get; set; }
 

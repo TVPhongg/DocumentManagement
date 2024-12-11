@@ -53,6 +53,7 @@ namespace DocumentManagement.Application.Services
                 LastName = userDto.LastName,
                 Address = userDto.Address,
                 Email = userDto.Email,
+                PhoneNumber = userDto.PhoneNumber,
                 Gender = userDto.Gender,
                 Password = passwordHash,
                 RoleId = userDto.RoleId,
@@ -66,8 +67,25 @@ namespace DocumentManagement.Application.Services
             await _emailService.SendEmail(new SendEmailDTOs
             {
                 ToEmail = user.Email,
-                Subject = "Xác nhận đăng ký tài khoản",
-                Body = $"Chào mừng bạn đến với ứng dụng của chúng tôi! Tài khoản của bạn đã được đăng ký thành công."
+                Subject = "Xác nhận đăng ký tài khoản thành công",
+                Body = $@"
+                 <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                    <h2 style='color: #5cb85c;'>Chào mừng bạn đến với ứng dụng của chúng tôi!</h2>
+                    <p>Xin chào <b>{user.FirstName} {user.LastName}</b>,</p>
+                    <p>Tài khoản của bạn đã được đăng ký thành công. Chúng tôi rất vui mừng được đồng hành cùng bạn.</p>
+                    <p>Vui lòng đăng nhập vào hệ thống để bắt đầu trải nghiệm ứng dụng:</p>
+                    <p>
+                        <a href='https://your-application-url.com/login' 
+                            style='color: #fff; background-color: #0275d8; padding: 10px 15px; text-decoration: none; border-radius: 5px;'>
+                            Đăng nhập ngay
+                        </a>
+                    </p>
+                    <p>Nếu bạn có bất kỳ câu hỏi hoặc cần hỗ trợ, vui lòng liên hệ với chúng tôi.</p>
+                    <p>Trân trọng,</p>
+                    <p><b>Đội ngũ hỗ trợ ứng dụng</b></p>
+                    <hr style='border: none; border-top: 1px solid #ddd;' />
+                    <p style='font-size: 12px; color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>
+                 </div>"
             });
 
             return true;
@@ -167,6 +185,7 @@ namespace DocumentManagement.Application.Services
             user.FirstName = userDto.FirstName;
             user.LastName = userDto.LastName;
             user.Email = userDto.Email;
+            user.PhoneNumber = userDto.PhoneNumber;
             user.Address = userDto.Address;
             user.Gender = userDto.Gender;
 
@@ -200,6 +219,7 @@ namespace DocumentManagement.Application.Services
                 LastName = user.LastName,
                 Address = user.Address,
                 Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
                 Gender = user.Gender,
                 RoleName = user.Role.RoleName,
                 DepartmentName = user.Department.Name
@@ -226,6 +246,7 @@ namespace DocumentManagement.Application.Services
                LastName = user.LastName,
                Address = user.Address,
                Email = user.Email,
+               PhoneNumber = user.PhoneNumber,
                Gender = user.Gender,
                RoleName = user.Role.RoleName,
                DepartmentName = user.Department.Name
@@ -249,6 +270,7 @@ namespace DocumentManagement.Application.Services
                     LastName = user.LastName,
                     Address = user.Address,
                     Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
                     Gender = user.Gender,
                     RoleName = user.Role.RoleName,
                     DepartmentName = user.Department.Name

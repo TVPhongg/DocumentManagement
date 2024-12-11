@@ -14,11 +14,11 @@ namespace DocumentManagement.Domain.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+
         public string Name { get; set; }
+
         public DateTime CreateDate { get; set; }
-        [ForeignKey("UserId")]
+
         public int UserId { get; set; }
-        public virtual ICollection<Files>? File { get; set; }
-        public ICollection<FolderPermissions> FolderPermissions { get; set; }
     }
 }

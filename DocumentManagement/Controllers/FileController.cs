@@ -53,11 +53,11 @@ namespace DocumentManagement.Controllers
             }
         }
         [HttpDelete("{id}")]
-        public async Task<ResponseModel> DeleteFile(int id, int currentUserId)
+        public async Task<ResponseModel> DeleteFile(int id)
         {
             try
             {
-                await _fileService.DeleteFile(id, currentUserId);
+                await _fileService.DeleteFile(id);
 
                 var response = new ResponseModel
                 {
@@ -87,11 +87,11 @@ namespace DocumentManagement.Controllers
             }
         }
         [HttpPatch("{id}")]
-        public async Task<ResponseModel> UpdateFile([FromBody] string newName, int id, int currentUserId)
+        public async Task<ResponseModel> UpdateFile([FromBody] string newName, int id)
         {
             try
             {
-                await _fileService.UpdateFile(newName, id, currentUserId);
+                await _fileService.UpdateFile(newName, id);
 
                 var response = new ResponseModel
                 {
@@ -122,14 +122,13 @@ namespace DocumentManagement.Controllers
             }
         }
         [HttpPost]
-        public async Task<ResponseModel> AddFile([FromForm] List<IFormFile> files, [FromForm] int foldersId, [FromForm] int userId)
+        public async Task<ResponseModel> AddFile([FromForm] List<IFormFile> files, [FromForm] int foldersId)
         {
             try
             {
                 var fileDto = new File_DTOs
                 {
                     FoldersId = foldersId,
-                    UserId = userId
                 };
 
                 await _fileService.AddFiles(fileDto, files);
@@ -160,39 +159,39 @@ namespace DocumentManagement.Controllers
                 return errorResponse;
             }
         }
-        [HttpPost("Share")]
-        public async Task<ResponseModel> Sharefolders(List<FilePermissionDTOs> filePermissions)
-        {
-            try
-            {
-                await _fileService.ShareFile(filePermissions);
+        //[HttpPost("Share")]
+        //public async Task<ResponseModel> Sharefolders(List<FilePermissionDTOs> filePermissions)
+        //{
+        //    try
+        //    {
+        //        await _fileService.ShareFile(filePermissions);
 
-                var response = new ResponseModel
-                {
-                    statusCode = 201,
-                    message = "Bạn chia sẻ file thành công."
-                };
-                return response;
-            }
-            catch (UnauthorizedAccessException)
-            {
-                var errorResponse = new ResponseModel
-                {
-                    statusCode = 403,
-                    message = "Bạn Không có quyền thực hiện hành động này."
-                };
-                return errorResponse;
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = new ResponseModel
-                {
-                    statusCode = 500,
-                    message = ex.Message
-                };
-                return errorResponse;
-            }
-        }
+        //        var response = new ResponseModel
+        //        {
+        //            statusCode = 201,
+        //            message = "Bạn chia sẻ file thành công."
+        //        };
+        //        return response;
+        //    }
+        //    catch (UnauthorizedAccessException)
+        //    {
+        //        var errorResponse = new ResponseModel
+        //        {
+        //            statusCode = 403,
+        //            message = "Bạn Không có quyền thực hiện hành động này."
+        //        };
+        //        return errorResponse;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        var errorResponse = new ResponseModel
+        //        {
+        //            statusCode = 500,
+        //            message = ex.Message
+        //        };
+        //        return errorResponse;
+        //    }
+        //}
         [HttpGet("Search")]
         public async Task<ResponseModel> SearchFile(string searchTerm)
         {

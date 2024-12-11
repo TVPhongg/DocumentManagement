@@ -21,38 +21,14 @@ namespace DocumentManagement.Domain.Context
         public DbSet<Logs> Log { get; set; }
         public DbSet<Roles> Role { get; set; }
         public DbSet<Department> Department { get; set; }
-        public DbSet<FilePermissions> FilePermission { get; set; }
-        public DbSet<FolderPermissions> FolderPermission { get; set; }
-        public DbSet<Permission> Permission { get; set; }
-        public DbSet<RolePermission> RolePermission { get; set; }
         public DbSet<Folders> Folder { get; set; }
         public DbSet<Files> File { get; set; }
         public DbSet<Tasks> Task { get; set; }
-        //public DbSet<TaskUpdates> TaskUpdate { get; set; }
+        public DbSet<Projects> Project {get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
          {
-            // User - Role relationship
-            modelBuilder.Entity<Users>()
-                .HasOne(u => u.Role)
-                .WithMany(r => r.Users)
-                .HasForeignKey(u => u.RoleId)  // Use RoleId as the foreign key
-                .OnDelete(DeleteBehavior.Restrict); // or NoAction
-
-            // RequestDocument - User relationship
-            modelBuilder.Entity<RequestDocument>()
-                .HasOne(rd => rd.User)
-                .WithMany(u => u.RequestDocuments)
-                .HasForeignKey(rd => rd.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // or NoAction
-
-            // ApprovalStep - User relationship
-            modelBuilder.Entity<ApprovalSteps>()
-                .HasOne(a => a.User)
-                .WithMany(u => u.ApprovalSteps)
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // or NoAction
-
             // ApprovalStep - RequestDocument relationship
             modelBuilder.Entity<ApprovalSteps>()
                 .HasOne(r => r.request) 
@@ -78,30 +54,6 @@ namespace DocumentManagement.Domain.Context
                 .WithMany(al => al.RequestDocuments)
                 .HasForeignKey(r => r.FlowId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Users>()
-                .HasOne(u => u.Department)
-                .WithMany(d => d.Users)
-                .HasForeignKey(u => u.DepartmentId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            //modelBuilder.Entity<TaskUpdates>()
-            //    .HasOne(r => r.User)
-            //    .WithMany(al => al.TaskUpdates)
-            //    .HasForeignKey(r => r.UpdateBy)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Tasks>()
-                .HasOne(r => r.User)
-                .WithMany(al => al.Tasks)
-                .HasForeignKey(r => r.AssignedTo)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            //modelBuilder.Entity<TaskUpdates>()
-            //    .HasOne(r => r.task)
-            //    .WithMany(al => al.TaskUpdates)
-            //    .HasForeignKey(r => r.TaskId)
-            //    .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
