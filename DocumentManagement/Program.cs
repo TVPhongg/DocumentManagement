@@ -52,6 +52,9 @@ public class Program
         builder.Services.AddScoped<ITaskService, TaskService>();
         builder.Services.AddSingleton<IWebHostEnvironment>(builder.Environment);
         builder.Services.AddTransient<EmailService>();
+        builder.Services.AddScoped<ISalaryService, SalaryService>();
+        builder.Services.AddScoped<IWorkLogService, WorkLogService>();
+        builder.Services.AddScoped<IExportExcelService, ExportExcelService>();
 
         // Configure CORS
         builder.Services.AddCors(options =>

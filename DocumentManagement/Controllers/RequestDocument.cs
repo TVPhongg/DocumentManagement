@@ -5,6 +5,7 @@ using DocumentManagement.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using Org.BouncyCastle.Asn1.Ocsp;
 
 namespace DocumentManagement.Controllers
@@ -285,5 +286,28 @@ namespace DocumentManagement.Controllers
             }
         }
 
+        [HttpGet("download-file")]
+        public async Task<IActionResult> DownloadFile([FromQuery] string fileName)
+        {
+            var filePath = Path.Combine("E:\\DocumentManagement\\DocumentManagement\\File", fileName);
+
+            // Kiểm tra file tồn tại
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("File không tồn tại.");
+            }
+
+            // Xác định Content Type dựa trên phần mở rộng
+            var provider = new FileExtensionContentTypeProvider();
+            string contentType;
+            if (!provider.TryGetContentType(filePath, out contentType))
+            {
+                contentType = "application/octet-stream"; // Mặc định nếu không xác định được loại file
+            }
+
+            // Đọc file và trả về kết quả
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, contentType, fileName);
+        }
     }
 }

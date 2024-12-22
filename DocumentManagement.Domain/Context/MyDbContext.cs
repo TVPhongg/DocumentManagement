@@ -25,7 +25,8 @@ namespace DocumentManagement.Domain.Context
         public DbSet<Files> File { get; set; }
         public DbSet<Tasks> Task { get; set; }
         public DbSet<Projects> Project {get; set; }
-
+        public DbSet<Salary> Salary { get; set; }
+        public DbSet<WorkLog> WorkLog { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
          {
@@ -42,7 +43,7 @@ namespace DocumentManagement.Domain.Context
                 .WithMany(af => af.ApprovalLevels)
                 .HasForeignKey(al => al.FlowId)
                 .OnDelete(DeleteBehavior.Restrict); // or NoAction
-
+          
             modelBuilder.Entity<ApprovalLevels>()
                 .HasOne(r => r.Role)
                 .WithMany(al => al.ApprovalLevels)
@@ -54,6 +55,13 @@ namespace DocumentManagement.Domain.Context
                 .WithMany(al => al.RequestDocuments)
                 .HasForeignKey(r => r.FlowId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Users>()
+               .HasOne(u => u.Salary)
+               .WithOne(s => s.User)
+               .HasForeignKey<Salary>(s => s.UserId);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

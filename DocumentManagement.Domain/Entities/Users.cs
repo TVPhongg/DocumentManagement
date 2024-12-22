@@ -49,6 +49,8 @@ namespace DocumentManagement.Domain.Entities
 
         public Department Department { get; set; }
 
+        public virtual Salary Salary { get; set; }
+
         public ICollection<RequestDocument> RequestDocuments { get; set; }
 
         public ICollection<ApprovalSteps> ApprovalSteps { get; set; }

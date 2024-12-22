@@ -63,11 +63,28 @@ namespace DocumentManagement.Application.Services
             _dbContext.User.Add(user);
             await _dbContext.SaveChangesAsync();
 
+            if (userDto.Salary != null)
+            {              
+                // Tạo entity Salary
+                var salaryEntity = new Salary
+                {
+                    UserId = user.Id,
+                    BaseSalary = userDto.Salary.BaseSalary,
+                    Allowances = userDto.Salary.Allowances,
+                    Bonus = userDto.Salary.Bonus,
+                };
+
+                // Lưu vào cơ sở dữ liệu
+                await _dbContext.Salary.AddAsync(salaryEntity);
+                await _dbContext.SaveChangesAsync();
+            }
+
+
             // Gửi email với mật khẩu
             await _emailService.SendEmail(new SendEmailDTOs
             {
                 ToEmail = user.Email,
-                Subject = "Xác nhận đăng ký tài khoản thành công",
+                Subject = "Xác nhận đăng ký tài khoản thành công".Trim(),
                 Body = $@"
                  <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
                     <h2 style='color: #5cb85c;'>Chào mừng bạn đến với ứng dụng của chúng tôi!</h2>
@@ -85,7 +102,7 @@ namespace DocumentManagement.Application.Services
                     <p><b>Đội ngũ hỗ trợ ứng dụng</b></p>
                     <hr style='border: none; border-top: 1px solid #ddd;' />
                     <p style='font-size: 12px; color: #888;'>Đây là email tự động, vui lòng không trả lời.</p>
-                 </div>"
+                </div>"
             });
 
             return true;
@@ -133,7 +150,7 @@ namespace DocumentManagement.Application.Services
             // Nếu không tìm thấy hoặc mật khẩu không đúng, trả về null
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password ))
             {
-                return null;
+                throw new Exception("Tài khoản hoặc mật khẩu chính xác");
             }
 
             var loginDTO = await GenerateToken(new Login_DTOs

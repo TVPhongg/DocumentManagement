@@ -36,5 +36,8 @@ namespace DocumentManagement.Application.DTOs
         public int RoleId { get; set; }
         [ForeignKey("DepartmentId")]
         public int DepartmentId { get; set; }
+
+        public Salary_DTOs? Salary { get; set; }
+
     }
 }

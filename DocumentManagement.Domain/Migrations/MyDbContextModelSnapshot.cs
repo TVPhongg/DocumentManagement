@@ -308,6 +308,49 @@ namespace DocumentManagement.Domain.Migrations
                     b.ToTable("Role");
                 });
 
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Salary", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActualWorkingHours")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Allowances")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("BaseSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Bonus")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StandardWorkingHours")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalSalary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Salary");
+                });
+
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Tasks", b =>
                 {
                     b.Property<int>("Id")
@@ -406,6 +449,28 @@ namespace DocumentManagement.Domain.Migrations
                     b.ToTable("User");
                 });
 
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.WorkLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("HoursWorked")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("WorkDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WorkLog");
+                });
+
             modelBuilder.Entity("DocumentManagement.Domain.Entities.ApprovalLevels", b =>
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.ApprovalFlows", "ApprovalFlow")
@@ -463,6 +528,17 @@ namespace DocumentManagement.Domain.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("DocumentManagement.Domain.Entities.Salary", b =>
+                {
+                    b.HasOne("DocumentManagement.Domain.Entities.Users", "User")
+                        .WithOne("Salary")
+                        .HasForeignKey("DocumentManagement.Domain.Entities.Salary", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("DocumentManagement.Domain.Entities.Tasks", b =>
                 {
                     b.HasOne("DocumentManagement.Domain.Entities.Users", null)
@@ -511,6 +587,9 @@ namespace DocumentManagement.Domain.Migrations
                     b.Navigation("ApprovalSteps");
 
                     b.Navigation("RequestDocuments");
+
+                    b.Navigation("Salary")
+                        .IsRequired();
 
                     b.Navigation("Tasks");
                 });
